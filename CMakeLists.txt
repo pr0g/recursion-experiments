@@ -16,3 +16,7 @@ target_compile_features(count-down-and-up PRIVATE cxx_std_20)
 add_executable(factorial)
 target_sources(factorial PRIVATE factorial.cpp)
 target_compile_features(factorial PRIVATE cxx_std_20)
+
+add_executable(fibonacci)
+target_sources(fibonacci PRIVATE fibonacci.cpp)
+target_compile_features(fibonacci PRIVATE cxx_std_20)

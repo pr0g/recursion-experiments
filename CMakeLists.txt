@@ -20,3 +20,7 @@ target_compile_features(factorial PRIVATE cxx_std_20)
 add_executable(fibonacci)
 target_sources(fibonacci PRIVATE fibonacci.cpp)
 target_compile_features(fibonacci PRIVATE cxx_std_20)
+
+add_executable(iterative-to-recursive)
+target_sources(iterative-to-recursive PRIVATE iterative-to-recursive.cpp)
+target_compile_features(iterative-to-recursive PRIVATE cxx_std_20)

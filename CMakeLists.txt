@@ -9,9 +9,9 @@ add_executable(shortest-recursive)
 target_sources(shortest-recursive PRIVATE shortest-recursive.cpp)
 target_compile_features(shortest-recursive PRIVATE cxx_std_20)
 
-add_executable(recursion-3)
-target_sources(recursion-3 PRIVATE recursion-3.cpp)
-target_compile_features(recursion-3 PRIVATE cxx_std_20)
+add_executable(count-down-and-up)
+target_sources(count-down-and-up PRIVATE count-down-and-up.cpp)
+target_compile_features(count-down-and-up PRIVATE cxx_std_20)
 
 add_executable(recursion-4)
 target_sources(recursion-4 PRIVATE recursion-4.cpp)

@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 project(recursion)
 
-add_executable(recursion-1)
-target_sources(recursion-1 PRIVATE recursion-1.cpp)
-target_compile_features(recursion-1 PRIVATE cxx_std_20)
+add_executable(nested-calls)
+target_sources(nested-calls PRIVATE nested-calls.cpp)
+target_compile_features(nested-calls PRIVATE cxx_std_20)
 
 add_executable(recursion-2)
 target_sources(recursion-2 PRIVATE recursion-2.cpp)

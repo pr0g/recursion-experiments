@@ -5,9 +5,9 @@ add_executable(nested-calls)
 target_sources(nested-calls PRIVATE nested-calls.cpp)
 target_compile_features(nested-calls PRIVATE cxx_std_20)
 
-add_executable(recursion-2)
-target_sources(recursion-2 PRIVATE recursion-2.cpp)
-target_compile_features(recursion-2 PRIVATE cxx_std_20)
+add_executable(shortest-recursive)
+target_sources(shortest-recursive PRIVATE shortest-recursive.cpp)
+target_compile_features(shortest-recursive PRIVATE cxx_std_20)
 
 add_executable(recursion-3)
 target_sources(recursion-3 PRIVATE recursion-3.cpp)

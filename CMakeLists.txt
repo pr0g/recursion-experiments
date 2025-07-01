@@ -24,3 +24,7 @@ target_compile_features(fibonacci PRIVATE cxx_std_20)
 add_executable(iterative-to-recursive)
 target_sources(iterative-to-recursive PRIVATE iterative-to-recursive.cpp)
 target_compile_features(iterative-to-recursive PRIVATE cxx_std_20)
+
+add_executable(exponents)
+target_sources(exponents PRIVATE exponents.cpp)
+target_compile_features(exponents PRIVATE cxx_std_20)

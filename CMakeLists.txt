@@ -32,3 +32,7 @@ target_compile_features(exponents PRIVATE cxx_std_20)
 add_executable(sums)
 target_sources(sums PRIVATE sums.cpp)
 target_compile_features(sums PRIVATE cxx_std_20)
+
+add_executable(array-sum)
+target_sources(array-sum PRIVATE array-sum.cpp)
+target_compile_features(array-sum PRIVATE cxx_std_20)

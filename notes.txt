@@ -1,3 +1,6 @@
 // 1. What is the base case? 
 // 2. What argument is passed to the recursive function call?
 // 3. How does the argument become closer to the base case?
+
+when converting recursive to iterative with explicit stack, only include function parameter (and return_address_e) in the frame_t object
+  remove as many local variables as possible to make this clearer (e.g. 'head' with 'head'/'tail' array sum)

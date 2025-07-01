@@ -36,3 +36,7 @@ target_compile_features(sums PRIVATE cxx_std_20)
 add_executable(array-sum)
 target_sources(array-sum PRIVATE array-sum.cpp)
 target_compile_features(array-sum PRIVATE cxx_std_20)
+
+add_executable(reverse-string)
+target_sources(reverse-string PRIVATE reverse-string.cpp)
+target_compile_features(reverse-string PRIVATE cxx_std_20)

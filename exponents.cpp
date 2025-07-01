@@ -10,17 +10,11 @@ int exponents_iterative(const int number, const int power) {
 }
 
 // 1. What is the base case?
-// power == 1 or power == 0
+//  power == 1 or power == 0
 // 2. What argument is passed to the recursive function call?
-// number and power decreased by some value
+//  number and power decreased by some value
 // 3. How does the argument become closer to the base case?
-//
-
-// 4 ^ 4
-
-// before 4, 2
-// before 2, 1,
-// before 1
+//  halving the power
 
 int exponents_recursive(const int number, const int power) {
   if (power == 1) {
@@ -37,6 +31,47 @@ int exponents_recursive(const int number, const int power) {
   }
 }
 
+int exponents_iterative_recursive(const int number, const int power) {
+  if (power == 0) {
+    return 1;
+  }
+  enum class return_address_e { before, recursive };
+  struct frame_t {
+    return_address_e return_address;
+    int power;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{.return_address = return_address_e::before, .power = power});
+  int return_value = 1;
+  while (!call_stack.empty()) {
+    const auto frame = call_stack.top();
+    if (frame.return_address == return_address_e::before) {
+      if (frame.power == 1) {
+        return_value = number;
+        call_stack.pop();
+        continue;
+      } else {
+        call_stack.top().return_address = return_address_e::recursive;
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .power = frame.power / 2});
+        continue;
+      }
+    } else if (frame.return_address == return_address_e::recursive) {
+      if (frame.power % 2 == 0) {
+        return_value = return_value * return_value;
+      } else {
+        return_value = return_value * return_value * number;
+      }
+      call_stack.pop();
+      continue;
+    }
+  }
+  return return_value;
+}
+
 int main(int argc, char** argv) {
   for (int i = 0; i < 5; i++) {
     std::cout << std::format(
@@ -46,6 +81,12 @@ int main(int argc, char** argv) {
   for (int i = 0; i < 5; i++) {
     std::cout << std::format(
       "exp of {} to power {} is {}\n", 5, i, exponents_recursive(5, i));
+  }
+  std::cout << "---\n";
+  for (int i = 0; i < 5; i++) {
+    std::cout << std::format(
+      "exp of {} to power {} is {}\n", 5, i,
+      exponents_iterative_recursive(5, i));
   }
   return 0;
 }

@@ -72,6 +72,37 @@ int exponents_iterative_recursive(const int number, const int power) {
   return return_value;
 }
 
+// alternate version - not a direct translation of the recursive algorithm
+int exponents_iterative_recursive_2(const int number, int power) {
+  if (power == 0) {
+    return 1;
+  }
+  enum class op_e { multiply, square };
+  std::stack<op_e> op_stack;
+  while (power > 1) {
+    if (power % 2 == 0) {
+      op_stack.push(op_e::square);
+      power /= 2;
+    } else {
+      op_stack.push(op_e::multiply);
+      power -= 1;
+    }
+  }
+
+  int result = number;
+  while (!op_stack.empty()) {
+    const auto op = op_stack.top();
+    if (op == op_e::multiply) {
+      result *= number;
+    } else if (op == op_e::square) {
+      result *= result;
+    }
+    op_stack.pop();
+  }
+
+  return result;
+}
+
 int main(int argc, char** argv) {
   for (int i = 0; i < 5; i++) {
     std::cout << std::format(
@@ -88,5 +119,15 @@ int main(int argc, char** argv) {
       "exp of {} to power {} is {}\n", 5, i,
       exponents_iterative_recursive(5, i));
   }
+  std::cout << "---\n";
+  for (int i = 0; i < 5; i++) {
+    std::cout << std::format(
+      "exp of {} to power {} is {}\n", 5, i,
+      exponents_iterative_recursive_2(5, i));
+  }
+  std::cout << "---\n";
+  std::cout << std::format(
+    "exp of {} to power {} is {}\n", 6, 5,
+    exponents_iterative_recursive_2(6, 5));
   return 0;
 }

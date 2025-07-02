@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <format>
 #include <iostream>
 #include <unordered_map>
@@ -161,7 +162,12 @@ int main(int argc, char** argv) {
     std::cout << "before:\n";
     print_towers(towers);
 
+    const auto before = std::chrono::steady_clock::now();
     solve_towers_of_hanoi_recursive(towers, 6, "A", "C", "B");
+    const auto after = std::chrono::steady_clock::now();
+    std::cout << "took "
+              << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   after - before);
 
     std::cout << "\nafter:\n";
     print_towers(towers);
@@ -185,7 +191,12 @@ int main(int argc, char** argv) {
     std::cout << "before:\n";
     print_towers(towers);
 
+    const auto before = std::chrono::steady_clock::now();
     solve_towers_of_hanoi_iterative_recursive(towers, 6, "A", "C", "B");
+    const auto after = std::chrono::steady_clock::now();
+    std::cout << "took "
+              << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   after - before);
 
     std::cout << "\nafter:\n";
     print_towers(towers);

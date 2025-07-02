@@ -48,3 +48,7 @@ target_compile_features(palindromes PRIVATE cxx_std_20)
 add_executable(hanoi)
 target_sources(hanoi PRIVATE hanoi.cpp)
 target_compile_features(hanoi PRIVATE cxx_std_20)
+
+add_executable(flood-fill)
+target_sources(flood-fill PRIVATE flood-fill.cpp)
+target_compile_features(flood-fill PRIVATE cxx_std_20)

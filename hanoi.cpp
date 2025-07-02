@@ -22,7 +22,7 @@
 
 const int g_total_disks = 6;
 
-void printDisk(int disk) {
+void print_disk(int disk) {
   std::string emptySpace;
   std::generate_n(
     std::back_inserter(emptySpace), g_total_disks - disk, [] { return ' '; });
@@ -38,15 +38,16 @@ void printDisk(int disk) {
   }
 }
 
-using towers_t = std::unordered_map<std::string, std::vector<int>>;
-void printTowers(const towers_t& towers) {
+using tower_t = std::deque<int>;
+using towers_t = std::unordered_map<std::string, tower_t>;
+void print_towers(const towers_t& towers) {
   for (const int level : {6, 5, 4, 3, 2, 1, 0}) {
     for (const auto label : {"A", "B", "C"}) {
       const auto tower = towers.find(label);
       if (level >= tower->second.size()) {
-        printDisk(0);
+        print_disk(0);
       } else {
-        printDisk(tower->second[level]);
+        print_disk(tower->second[level]);
       }
     }
     std::cout << '\n';
@@ -59,14 +60,51 @@ void printTowers(const towers_t& towers) {
     emptySpace);
 }
 
+void move_disk(
+  towers_t& towers, const std::string& start_tower,
+  const std::string& end_tower) {
+  auto start_tower_it = towers.find(start_tower);
+  const auto disk = start_tower_it->second.back();
+  start_tower_it->second.pop_back();
+  auto end_tower_it = towers.find(end_tower);
+  end_tower_it->second.push_back(disk);
+}
+
+void solve_towers_of_hanoi_recursive(
+  towers_t& towers, int number_of_disks, const std::string& start_tower,
+  const std::string& end_tower, const std::string& temp_tower) {
+  // move the top number of disks to from start tower to end towers
+  if (number_of_disks == 1) {
+    move_disk(towers, start_tower, end_tower);
+    // print_towers(towers);
+  } else {
+    solve_towers_of_hanoi_recursive(
+      towers, number_of_disks - 1, start_tower, temp_tower, end_tower);
+    move_disk(towers, start_tower, end_tower);
+    solve_towers_of_hanoi_recursive(
+      towers, number_of_disks - 1, temp_tower, end_tower, start_tower);
+  }
+}
+
 int main(int argc, char** argv) {
   towers_t towers;
 
-  towers.insert({"A", {6, 5, 4, 3, 2, 1}});
+  tower_t a_tower;
+  for (int i = 6; i > 0; i--) {
+    a_tower.push_back(i);
+  }
+
+  towers.insert({"A", a_tower});
   towers.insert({"B", {}});
   towers.insert({"C", {}});
 
-  printTowers(towers);
+  std::cout << "before:\n";
+  print_towers(towers);
+
+  solve_towers_of_hanoi_recursive(towers, 6, "A", "C", "B");
+
+  std::cout << "\nafter:\n";
+  print_towers(towers);
 
   return 0;
 }

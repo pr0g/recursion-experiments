@@ -44,3 +44,7 @@ target_compile_features(reverse-string PRIVATE cxx_std_20)
 add_executable(palindromes)
 target_sources(palindromes PRIVATE palindromes.cpp)
 target_compile_features(palindromes PRIVATE cxx_std_20)
+
+add_executable(hanoi)
+target_sources(hanoi PRIVATE hanoi.cpp)
+target_compile_features(hanoi PRIVATE cxx_std_20)

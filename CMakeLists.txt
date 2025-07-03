@@ -60,3 +60,7 @@ target_compile_features(ackermann PRIVATE cxx_std_20)
 add_executable(concat)
 target_sources(concat PRIVATE concat.cpp)
 target_compile_features(concat PRIVATE cxx_std_20)
+
+add_executable(product)
+target_sources(product PRIVATE product.cpp)
+target_compile_features(product PRIVATE cxx_std_20)

@@ -82,6 +82,17 @@ std::vector<std::string> depth_first_search_postorder(node_t* node) {
   return names;
 }
 
+int tree_depth(const node_t* node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  int d = 0;
+  for (const auto* child : node->children) {
+    d = std::max(d, tree_depth(child) + 1);
+  }
+  return d;
+}
+
 int main(int argc, char** argv) {
 
   {
@@ -146,7 +157,7 @@ int main(int argc, char** argv) {
       }
     }
 
-    std::cout << "\n";
+    std::cout << '\n';
 
     {
       std::vector<std::string> eightLetterNames =
@@ -155,6 +166,10 @@ int main(int argc, char** argv) {
         std::cout << std::format("Name: {}\n", eightLetterName);
       }
     }
+
+    std::cout << '\n';
+
+    std::cout << std::format("Tree depth is {}\n", tree_depth(&root));
   }
 
   return 0;

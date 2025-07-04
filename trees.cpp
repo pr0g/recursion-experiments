@@ -41,27 +41,121 @@ void inorder_traversal(node_t* node) {
   }
 }
 
+void depth_first_search(
+  node_t* node, const std::function<void(const node_t* node)>& fn) {
+  if (node == nullptr) {
+    return;
+  }
+  fn(node);
+  for (auto child : node->children) {
+    depth_first_search(child, fn);
+  }
+}
+
+std::vector<std::string> depth_first_search_preorder(node_t* node) {
+  if (node == nullptr) {
+    return std::vector<std::string>{};
+  }
+  std::vector<std::string> names;
+  if (node->data.size() == 8) {
+    names.push_back(node->data);
+  }
+  for (auto child : node->children) {
+    const auto next_names = depth_first_search_preorder(child);
+    names.insert(names.end(), next_names.begin(), next_names.end());
+  }
+  return names;
+}
+
+std::vector<std::string> depth_first_search_postorder(node_t* node) {
+  if (node == nullptr) {
+    return std::vector<std::string>{};
+  }
+  std::vector<std::string> names;
+  for (auto child : node->children) {
+    const auto next_names = depth_first_search_postorder(child);
+    names.insert(names.end(), next_names.begin(), next_names.end());
+  }
+  if (node->data.size() == 8) {
+    names.push_back(node->data);
+  }
+  return names;
+}
+
 int main(int argc, char** argv) {
 
-  node_t root = {.data = "A"};
-  node_t node2 = {.data = "B"};
-  node_t node3 = {.data = "C"};
-  node_t node4 = {.data = "D"};
-  node_t node5 = {.data = "E"};
-  node_t node6 = {.data = "F"};
-  node_t node7 = {.data = "G"};
-  node_t node8 = {.data = "H"};
+  {
+    node_t root = {.data = "A"};
+    node_t node2 = {.data = "B"};
+    node_t node3 = {.data = "C"};
+    node_t node4 = {.data = "D"};
+    node_t node5 = {.data = "E"};
+    node_t node6 = {.data = "F"};
+    node_t node7 = {.data = "G"};
+    node_t node8 = {.data = "H"};
 
-  root.children = {&node2, &node3};
-  node2.children = {&node4};
-  node3.children = {&node5, &node6};
-  node5.children = {&node7, &node8};
+    root.children = {&node2, &node3};
+    node2.children = {&node4};
+    node3.children = {&node5, &node6};
+    node5.children = {&node7, &node8};
 
-  preorder_traversal(&root);
+    preorder_traversal(&root);
+    std::cout << '\n';
+    postorder_traversal(&root);
+    std::cout << '\n';
+    inorder_traversal(&root);
+  }
+
   std::cout << '\n';
-  postorder_traversal(&root);
-  std::cout << '\n';
-  inorder_traversal(&root);
+
+  {
+    node_t root = {.data = "Alice"};
+    node_t node2 = {.data = "Bob"};
+    node_t node3 = {.data = "Darya"};
+    node_t node4 = {.data = "Caroline"};
+    node_t node5 = {.data = "Eve"};
+    node_t node6 = {.data = "Fred"};
+    node_t node7 = {.data = "Gonzalo"};
+    node_t node8 = {.data = "Hadassah"};
+
+    root.children = {&node2, &node4};
+    node2.children = {&node3};
+    node4.children = {&node5, &node6};
+    node5.children = {&node7, &node8};
+
+    {
+      std::vector<std::string> eightLetterNames;
+      depth_first_search(&root, [&eightLetterNames](const node_t* node) {
+        if (node->data.size() == 8) {
+          eightLetterNames.push_back(node->data);
+        }
+      });
+
+      for (const auto& eightLetterName : eightLetterNames) {
+        std::cout << std::format("Name: {}\n", eightLetterName);
+      }
+    }
+
+    std::cout << '\n';
+
+    {
+      std::vector<std::string> eightLetterNames =
+        depth_first_search_preorder(&root);
+      for (const auto& eightLetterName : eightLetterNames) {
+        std::cout << std::format("Name: {}\n", eightLetterName);
+      }
+    }
+
+    std::cout << "\n";
+
+    {
+      std::vector<std::string> eightLetterNames =
+        depth_first_search_postorder(&root);
+      for (const auto& eightLetterName : eightLetterNames) {
+        std::cout << std::format("Name: {}\n", eightLetterName);
+      }
+    }
+  }
 
   return 0;
 }

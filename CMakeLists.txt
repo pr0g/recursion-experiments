@@ -72,3 +72,7 @@ target_compile_features(min-distance PRIVATE cxx_std_20)
 add_executable(trees)
 target_sources(trees PRIVATE trees.cpp)
 target_compile_features(trees PRIVATE cxx_std_20)
+
+add_executable(maze)
+target_sources(maze PRIVATE maze.cpp)
+target_compile_features(maze PRIVATE cxx_std_20)

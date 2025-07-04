@@ -41,6 +41,19 @@ void inorder_traversal(node_t* node) {
   }
 }
 
+void reverse_inorder_traversal(node_t* node) {
+  if (node == nullptr) {
+    return;
+  }
+  for (int i = 1; i < node->children.size(); i++) {
+    reverse_inorder_traversal(node->children[i]);
+  }
+  std::cout << std::format("{}\n", node->data);
+  for (int i = 0; i < std::min<int>(1, node->children.size()); i++) {
+    reverse_inorder_traversal(node->children[i]);
+  }
+}
+
 void depth_first_search(
   node_t* node, const std::function<void(const node_t* node)>& fn) {
   if (node == nullptr) {
@@ -96,6 +109,14 @@ int tree_depth(const node_t* node) {
 int main(int argc, char** argv) {
 
   {
+    //             A
+    //           /   \
+    //          B     C
+    //          |    / \
+    //          D   E   F
+    //             / \
+    //            G  H
+
     node_t root = {.data = "A"};
     node_t node2 = {.data = "B"};
     node_t node3 = {.data = "C"};
@@ -115,6 +136,8 @@ int main(int argc, char** argv) {
     postorder_traversal(&root);
     std::cout << '\n';
     inorder_traversal(&root);
+    std::cout << '\n';
+    reverse_inorder_traversal(&root);
   }
 
   std::cout << '\n';

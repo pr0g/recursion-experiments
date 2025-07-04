@@ -106,8 +106,22 @@ int tree_depth(const node_t* node) {
   return d;
 }
 
-int main(int argc, char** argv) {
+void deepen_tree(node_t* node) {
+  if (node == nullptr) {
+    return;
+  }
+  for (const auto child : node->children) {
+    deepen_tree(child);
+  }
+  // leak, no clean-up currently...
+  if (node->children.empty()) {
+    node_t* child = new node_t();
+    child->data = node->data + " child";
+    node->children.push_back(child);
+  }
+}
 
+int main(int argc, char** argv) {
   {
     //             A
     //           /   \
@@ -138,6 +152,9 @@ int main(int argc, char** argv) {
     inorder_traversal(&root);
     std::cout << '\n';
     reverse_inorder_traversal(&root);
+    std::cout << '\n';
+    deepen_tree(&root); // add new child nodes to tree
+    preorder_traversal(&root);
   }
 
   std::cout << '\n';

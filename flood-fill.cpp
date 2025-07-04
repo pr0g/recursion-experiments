@@ -145,5 +145,36 @@ int main(int argc, char** argv) {
     display_image(image);
   }
 
+  std::cout << '\n';
+
+  // room check
+  {
+    image_t image = {
+      {"...##########...................................."},
+      {"...#........#....####..................##########"},
+      {"...#........#....#..#...############...#........#"},
+      {"...##########....#..#...#..........#...##.......#"},
+      {".......#....#....####...#..........#....##......#"},
+      {".......#....#....#......############.....##.....#"},
+      {".......######....#........................##....#"},
+      {".................####........####..........######"}};
+
+    display_image(image);
+    std::cout << '\n';
+
+    int rooms = 0;
+    for (int row = 0; row < image.size(); row++) {
+      for (int col = 0; col < image[0].size(); ++col) {
+        if (image[row][col] == '.') {
+          flood_fill_iterative_recursive(image, row, col, 'o', '.');
+          display_image(image);
+          rooms++;
+          std::cout << '\n';
+        }
+      }
+    }
+
+    std::cout << std::format("Number of rooms: {}\n", rooms);
+  }
   return 0;
 }

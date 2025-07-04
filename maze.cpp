@@ -42,7 +42,7 @@ struct coord_hash_t {
   }
 };
 
-bool solve(
+bool solve_recursive(
   maze_t& maze, coord_t coord,
   std::unordered_set<coord_t, coord_hash_t>& visited) {
   const int width = maze[0].size();
@@ -55,93 +55,37 @@ bool solve(
   visited.insert(coord);
   maze[row][col] = '.';
 
+  bool solved = false;
   const auto up = coord_t{.row = row - 1, .col = col};
   if (
     up.row >= 0 && maze[up.row][up.col] == ' '
     || maze[up.row][up.col] == 'E' && !visited.contains(up)) {
-    if (solve(maze, up, visited)) {
-      return true;
-    }
+    solved = solved || solve_recursive(maze, up, visited);
   }
 
   const auto down = coord_t{.row = row + 1, .col = col};
   if (
     down.row < height && maze[down.row][down.col] == ' '
     || maze[down.row][down.col] == 'E' && !visited.contains(down)) {
-    if (solve(maze, down, visited)) {
-      return true;
-    }
+    solved = solved || solve_recursive(maze, down, visited);
   }
 
   const auto right = coord_t{.row = row, .col = col + 1};
   if (
     right.col < width && maze[right.row][right.col] == ' '
     || maze[right.row][right.col] == 'E' && !visited.contains(right)) {
-    if (solve(maze, right, visited)) {
-      return true;
-    }
+    solved = solved || solve_recursive(maze, right, visited);
   }
 
   const auto left = coord_t{.row = row, .col = col - 1};
   if (
     left.col >= 0 && maze[left.row][left.col] == ' '
     || maze[left.row][left.col] == 'E' && !visited.contains(left)) {
-    if (solve(maze, left, visited)) {
-      return true;
-    }
+    solved = solved || solve_recursive(maze, left, visited);
   }
 
-  return false;
+  return solved;
 }
-
-// bool solve(
-//   maze_t& maze, int row, int col,
-//   std::unordered_set<std::pair<int, int>, coord_hash_t>& visited) {
-//   if (
-//     row < 0 || row >= maze.size() || col < 0 || col >= maze[0].size()
-//     || visited.find(std::pair{row, col}) != visited.end()) {
-//     return false;
-//   }
-//   visited.insert(std::pair{row, col});
-//   maze[row][col] = '.';
-//   if (maze[row][col] == 'E') {
-//     return true;
-//   }
-//   std::pair<int, int> left = {row, col - 1};
-//   if (left.second >= 0) {
-//     if (maze[left.first][left.second] == ' ') {
-//       if (solve(maze, left.first, left.second, visited)) {
-//         return true;
-//       }
-//     }
-//   }
-//   std::pair<int, int> right = {row, col + 1};
-//   if (right.second < maze[0].size()) {
-//     if (maze[right.first][right.second] == ' ') {
-//       if (solve(maze, right.first, right.second, visited)) {
-//         return true;
-//       }
-//     }
-//   }
-//   std::pair<int, int> up = {row - 1, col};
-//   if (up.first >= 0) {
-//     if (maze[up.first][up.second] == ' ') {
-//       if (solve(maze, up.first, up.second, visited)) {
-//         return true;
-//       }
-//     }
-//   }
-//   std::pair<int, int> down = {row + 1, col};
-//   if (down.first < maze.size()) {
-//     if (maze[down.first][down.second] == ' ') {
-//       if (solve(maze, down.first, down.second, visited)) {
-//         return true;
-//       }
-//     }
-//   }
-//   maze[row][col] = ' ';
-//   return false;
-// }
 
 int main(int argc, char** argv) {
   maze_t maze = {
@@ -167,7 +111,7 @@ int main(int argc, char** argv) {
 
   const auto start = find_start(maze);
   std::unordered_set<coord_t, coord_hash_t> visited;
-  std::cout << solve(maze, *start, visited);
+  std::cout << solve_recursive(maze, *start, visited);
 
   std::cout << '\n';
 

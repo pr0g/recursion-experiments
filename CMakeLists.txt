@@ -64,3 +64,7 @@ target_compile_features(concat PRIVATE cxx_std_20)
 add_executable(product)
 target_sources(product PRIVATE product.cpp)
 target_compile_features(product PRIVATE cxx_std_20)
+
+add_executable(min-distance)
+target_sources(min-distance PRIVATE min-distance.cpp)
+target_compile_features(min-distance PRIVATE cxx_std_20)

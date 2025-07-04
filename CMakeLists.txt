@@ -68,3 +68,7 @@ target_compile_features(product PRIVATE cxx_std_20)
 add_executable(min-distance)
 target_sources(min-distance PRIVATE min-distance.cpp)
 target_compile_features(min-distance PRIVATE cxx_std_20)
+
+add_executable(trees)
+target_sources(trees PRIVATE trees.cpp)
+target_compile_features(trees PRIVATE cxx_std_20)

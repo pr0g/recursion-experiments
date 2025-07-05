@@ -80,3 +80,7 @@ target_compile_features(maze PRIVATE cxx_std_20)
 add_executable(binary-search)
 target_sources(binary-search PRIVATE binary-search.cpp)
 target_compile_features(binary-search PRIVATE cxx_std_20)
+
+add_executable(quicksort)
+target_sources(quicksort PRIVATE quicksort.cpp)
+target_compile_features(quicksort PRIVATE cxx_std_20)

@@ -126,6 +126,52 @@ void inorder_traversal_recursive(node_t* node) {
   }
 }
 
+void inorder_traversal_iterative_recursive(node_t* node) {
+  enum class return_address_e { before, recursive_1, recursive_2 };
+  struct frame_t {
+    return_address_e return_address;
+    node_t* node;
+    int child_index = 0;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{.return_address = return_address_e::before, .node = node});
+  while (!call_stack.empty()) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      if (top.node == nullptr) {
+        call_stack.pop();
+        continue;
+      }
+      if (top.child_index < std::min<int>(1, top.node->children.size())) {
+        top.return_address = return_address_e::recursive_1;
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .node = top.node->children[top.child_index]});
+        top.child_index++;
+      } else {
+        std::cout << std::format("{}\n", top.node->data);
+        call_stack.pop();
+      }
+    } else if (top.return_address == return_address_e::recursive_1) {
+      std::cout << std::format("{}\n", top.node->data);
+      if (top.child_index < top.node->children.size()) {
+        top.return_address = return_address_e::recursive_2;
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .node = top.node->children[top.child_index]});
+        top.child_index++;
+      } else {
+        call_stack.pop();
+      }
+    } else if (top.return_address == return_address_e::recursive_2) {
+      call_stack.pop();
+    }
+  }
+}
+
 void reverse_inorder_traversal(node_t* node) {
   if (node == nullptr) {
     return;
@@ -244,6 +290,9 @@ int main(int argc, char** argv) {
     std::cout << '\n';
     std::cout << "inorder recursive:\n";
     inorder_traversal_recursive(&root);
+    std::cout << '\n';
+    std::cout << "inorder iterative:\n";
+    inorder_traversal_iterative_recursive(&root);
     std::cout << '\n';
     std::cout << "inorder reverse recursive:\n";
     reverse_inorder_traversal(&root);

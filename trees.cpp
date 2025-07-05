@@ -69,6 +69,49 @@ void postorder_traversal_recursive(node_t* node) {
   std::cout << std::format("{}\n", node->data);
 }
 
+void postorder_traversal_iterative_recursive(node_t* node) {
+  enum class return_address_e { before, recursive };
+  struct frame_t {
+    return_address_e return_address;
+    node_t* node;
+    int child_index = 0;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{.return_address = return_address_e::before, .node = node});
+  while (!call_stack.empty()) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      if (top.node == nullptr) {
+        call_stack.pop();
+        continue;
+      }
+      if (top.child_index < top.node->children.size()) {
+        top.return_address = return_address_e::recursive;
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .node = top.node->children[top.child_index]});
+        top.child_index++;
+      } else {
+        std::cout << std::format("{}\n", top.node->data);
+        call_stack.pop();
+      }
+    } else if (top.return_address == return_address_e::recursive) {
+      if (top.child_index < top.node->children.size()) {
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .node = top.node->children[top.child_index]});
+        top.child_index++;
+      } else {
+        std::cout << std::format("{}\n", top.node->data);
+        call_stack.pop();
+      }
+    }
+  }
+}
+
 // mostly only relevant for binary trees
 void inorder_traversal_recursive(node_t* node) {
   if (node == nullptr) {
@@ -187,22 +230,25 @@ int main(int argc, char** argv) {
     node3.children = {&node5, &node6};
     node5.children = {&node7, &node8};
 
-    std::cout << "recursive:\n";
+    std::cout << "preorder recursive:\n";
     preorder_traversal_recursive(&root);
     std::cout << '\n';
-    std::cout << "iterative:\n";
+    std::cout << "preorder iterative:\n";
     preorder_traversal_iterative_recursive(&root);
     std::cout << '\n';
-    std::cout << "recursive:\n";
+    std::cout << "postorder recursive:\n";
     postorder_traversal_recursive(&root);
     std::cout << '\n';
-    std::cout << "recursive:\n";
+    std::cout << "postorder iterative:\n";
+    postorder_traversal_iterative_recursive(&root);
+    std::cout << '\n';
+    std::cout << "inorder recursive:\n";
     inorder_traversal_recursive(&root);
     std::cout << '\n';
-    std::cout << "recursive:\n";
+    std::cout << "inorder reverse recursive:\n";
     reverse_inorder_traversal(&root);
     std::cout << '\n';
-    std::cout << "recursive:\n";
+    std::cout << "deepen recursive:\n";
     deepen_tree_recursive(&root); // add new child nodes to tree
     preorder_traversal_recursive(&root);
   }

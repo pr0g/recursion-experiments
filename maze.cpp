@@ -43,7 +43,7 @@ struct coord_hash_t {
 };
 
 bool solve_recursive(
-  maze_t& maze, coord_t coord,
+  maze_t& maze, const coord_t& coord,
   std::unordered_set<coord_t, coord_hash_t>& visited) {
   const int width = maze[0].size();
   const int height = maze.size();
@@ -70,6 +70,13 @@ bool solve_recursive(
     solved = solved || solve_recursive(maze, down, visited);
   }
 
+  const auto left = coord_t{.row = row, .col = col - 1};
+  if (
+    left.col >= 0 && maze[left.row][left.col] == ' '
+    || maze[left.row][left.col] == 'E' && !visited.contains(left)) {
+    solved = solved || solve_recursive(maze, left, visited);
+  }
+
   const auto right = coord_t{.row = row, .col = col + 1};
   if (
     right.col < width && maze[right.row][right.col] == ' '
@@ -77,11 +84,9 @@ bool solve_recursive(
     solved = solved || solve_recursive(maze, right, visited);
   }
 
-  const auto left = coord_t{.row = row, .col = col - 1};
-  if (
-    left.col >= 0 && maze[left.row][left.col] == ' '
-    || maze[left.row][left.col] == 'E' && !visited.contains(left)) {
-    solved = solved || solve_recursive(maze, left, visited);
+  if (!solved) {
+    // reset space when backtracking and not solved
+    maze[row][col] = ' ';
   }
 
   return solved;

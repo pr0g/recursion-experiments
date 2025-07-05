@@ -76,3 +76,7 @@ target_compile_features(trees PRIVATE cxx_std_20)
 add_executable(maze)
 target_sources(maze PRIVATE maze.cpp)
 target_compile_features(maze PRIVATE cxx_std_20)
+
+add_executable(binary-search)
+target_sources(binary-search PRIVATE binary-search.cpp)
+target_compile_features(binary-search PRIVATE cxx_std_20)

@@ -20,7 +20,7 @@ std::optional<int> binary_search_recursive(
     std::cout << haystack[i] << ", ";
   }
   std::cout << haystack[*right] << "]\n";
-  int mid = *left + (*right - *left) / 2;
+  const int mid = *left + (*right - *left) / 2;
   if (needle == haystack[mid]) {
     return mid;
   } else if (needle < haystack[mid]) {
@@ -46,7 +46,7 @@ std::optional<int> binary_search_iterative(
       std::cout << haystack[i] << ", ";
     }
     std::cout << haystack[*right] << "]\n";
-    int mid = *left + (*right - *left) / 2;
+    const int mid = *left + (*right - *left) / 2;
     if (needle == haystack[mid]) {
       return mid;
     } else if (needle < haystack[mid]) {

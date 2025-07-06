@@ -88,3 +88,7 @@ target_compile_features(quicksort PRIVATE cxx_std_20)
 add_executable(mergesort)
 target_sources(mergesort PRIVATE mergesort.cpp)
 target_compile_features(mergesort PRIVATE cxx_std_20)
+
+add_executable(array-sum-div)
+target_sources(array-sum-div PRIVATE array-sum-div.cpp)
+target_compile_features(array-sum-div PRIVATE cxx_std_20)

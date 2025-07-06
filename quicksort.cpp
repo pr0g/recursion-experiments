@@ -58,6 +58,42 @@ void quicksort_recursive2(
   quicksort_recursive2(items.subspan(midpoint));
 }
 
+void quicksort_iterative_recursive2(std::span<int> items) {
+  enum class return_address_e { before, recursive1, recursive2 };
+  struct frame_t {
+    return_address_e return_address;
+    std::span<int> items;
+    int midpoint;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{.return_address = return_address_e::before, .items = items});
+  while (!call_stack.empty()) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      if (top.items.size() <= 1) {
+        call_stack.pop();
+        continue;
+      }
+      top.midpoint = partition(top.items, top.items.back());
+      std::swap(top.items[top.midpoint], top.items[top.items.size() - 1]);
+      top.return_address = return_address_e::recursive1;
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before,
+          .items = top.items.subspan(0, top.midpoint)});
+    } else if (top.return_address == return_address_e::recursive1) {
+      top.return_address = return_address_e::recursive2;
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before,
+          .items = top.items.subspan(top.midpoint)});
+    } else if (top.return_address == return_address_e::recursive2) {
+      call_stack.pop();
+    }
+  }
+}
+
 int main(int argc, char** argv) {
   std::vector<int> items = {2, 6, 1, 5, 10, 15, 11, 3, 9, 20, 8};
 
@@ -73,6 +109,13 @@ int main(int argc, char** argv) {
     quicksort_recursive2(items_recursive2);
     std::cout << "recursive2 quicksort: \n";
     print_items(items_recursive2);
+  }
+
+  {
+    auto items_iterative_recursive2 = items;
+    quicksort_iterative_recursive2(items_iterative_recursive2);
+    std::cout << "iterative recursive2 quicksort: \n";
+    print_items(items_iterative_recursive2);
   }
 
   {

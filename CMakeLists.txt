@@ -84,3 +84,7 @@ target_compile_features(binary-search PRIVATE cxx_std_20)
 add_executable(quicksort)
 target_sources(quicksort PRIVATE quicksort.cpp)
 target_compile_features(quicksort PRIVATE cxx_std_20)
+
+add_executable(mergesort)
+target_sources(mergesort PRIVATE mergesort.cpp)
+target_compile_features(mergesort PRIVATE cxx_std_20)

@@ -3,6 +3,23 @@
 #include <ranges>
 #include <span>
 
+void print_items(std::span<int> items) {
+  for (const auto item : items | std::views::take(items.size() - 1)) {
+    std::cout << std::format("{}, ", item);
+  }
+  std::cout << std::format("{}\n", items.back());
+}
+
+auto partition(std::span<int> items, int value) {
+  int i = 0;
+  for (int j = 0; j < items.size(); j++) {
+    if (items[j] < value) {
+      std::swap(items[j], items[i++]);
+    }
+  }
+  return i;
+}
+
 void quicksort_recursive(
   std::span<int> items, std::optional<int> pivot = std::nullopt) {
   if (items.size() <= 1) {
@@ -18,8 +35,27 @@ void quicksort_recursive(
   // put the pivot on the left side of right partition
   std::iter_swap(midpoint, std::prev(items.end()));
 
-  quicksort_recursive(items.subspan(0, std::distance(items.begin(), midpoint)));
-  quicksort_recursive(items.subspan(std::distance(midpoint, items.end())));
+  const auto midpoint_index = std::distance(items.begin(), midpoint);
+  quicksort_recursive(items.subspan(0, midpoint_index));
+  quicksort_recursive(items.subspan(midpoint_index));
+}
+
+void quicksort_recursive2(
+  std::span<int> items, std::optional<int> pivot = std::nullopt) {
+  if (items.size() <= 1) {
+    return;
+  }
+  if (pivot == std::nullopt) {
+    pivot = items.back();
+  }
+
+  const auto midpoint = partition(items, *pivot);
+
+  // put the pivot on the left side of right partition
+  std::swap(items[midpoint], items[items.size() - 1]);
+
+  quicksort_recursive2(items.subspan(0, midpoint));
+  quicksort_recursive2(items.subspan(midpoint));
 }
 
 int main(int argc, char** argv) {
@@ -29,11 +65,46 @@ int main(int argc, char** argv) {
     auto items_recursive = items;
     quicksort_recursive(items_recursive);
     std::cout << "recursive quicksort: \n";
-    for (const auto item :
-         items_recursive | std::views::take(items_recursive.size() - 1)) {
-      std::cout << std::format("{}, ", item);
-    }
-    std::cout << std::format("{}\n", items_recursive.back());
+    print_items(items_recursive);
+  }
+
+  {
+    auto items_recursive2 = items;
+    quicksort_recursive2(items_recursive2);
+    std::cout << "recursive2 quicksort: \n";
+    print_items(items_recursive2);
+  }
+
+  {
+    std::vector<int> items2 = {0, 7, 6, 3, 1, 2, 5, 4};
+    auto midpoint = partition(items2, 1);
+    std::cout << "partition midpoint: " << midpoint << '\n';
+    print_items(items2);
+  }
+
+  {
+    std::vector<int> items2 = {0, 7, 6, 3, 1, 2, 5, 4};
+    auto midpoint =
+      std::partition(items2.begin(), items2.end(), [](int v) { return v < 1; });
+    std::cout << "std::partition midpoint: "
+              << std::distance(items2.begin(), midpoint) << '\n';
+    print_items(items2);
+  }
+
+  {
+    auto items_custom = items;
+    auto midpoint = partition(items_custom, 3);
+    std::cout << "partition midpoint: " << midpoint << '\n';
+    print_items(items_custom);
+  }
+
+  {
+    auto items_std = items;
+    auto midpoint = std::partition(
+      items_std.begin(), items_std.end(), [](const int v) { return v < 3; });
+    std::cout << "std::partition midpoint: "
+              << std::distance(items_std.begin(), midpoint) << '\n';
+    print_items(items_std);
   }
 
   return 0;

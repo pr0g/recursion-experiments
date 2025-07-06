@@ -3,7 +3,7 @@
 #include <ranges>
 #include <span>
 
-void print_items(std::span<int> items) {
+void print_items(std::span<const int> items) {
   for (const auto item : items | std::views::take(items.size() - 1)) {
     std::cout << std::format("{}, ", item);
   }

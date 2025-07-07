@@ -92,3 +92,7 @@ target_compile_features(mergesort PRIVATE cxx_std_20)
 add_executable(array-sum-div)
 target_sources(array-sum-div PRIVATE array-sum-div.cpp)
 target_compile_features(array-sum-div PRIVATE cxx_std_20)
+
+add_executable(karatsuba)
+target_sources(karatsuba PRIVATE karatsuba.cpp)
+target_compile_features(karatsuba PRIVATE cxx_std_20)

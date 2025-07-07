@@ -1,5 +1,7 @@
+#include <chrono>
 #include <format>
 #include <iostream>
+#include <numeric>
 #include <span>
 
 std::optional<int> binary_search_recursive(
@@ -41,11 +43,11 @@ std::optional<int> binary_search_iterative(
     right = haystack.size() - 1;
   }
   while (*left <= *right) {
-    std::cout << "searching: [";
-    for (int i = *left; i < *right; i++) {
-      std::cout << haystack[i] << ", ";
-    }
-    std::cout << haystack[*right] << "]\n";
+    // std::cout << "searching: [";
+    // for (int i = *left; i < *right; i++) {
+    //   std::cout << haystack[i] << ", ";
+    // }
+    // std::cout << haystack[*right] << "]\n";
     const int mid = *left + (*right - *left) / 2;
     if (needle == haystack[mid]) {
       return mid;
@@ -147,6 +149,40 @@ int main(int argc, char** argv) {
     std::cout << std::format(
       "position of {} in [1, 4, 8, 11, 13, 16, 19, 19] is {}\n", needle,
       found.value_or(-1));
+  }
+
+  std::cout << '\n';
+  
+  // already sorted...
+  std::vector<int> values(10'000, 0);
+  std::iota(values.begin(), values.end(), 1);
+
+  using fp_seconds = std::chrono::duration<float, std::chrono::seconds::period>;
+
+  {
+    const auto before = std::chrono::steady_clock::now();
+    int64_t acc = 0;
+    for (int i = 0; i < 100'000; i++) {
+      auto it = std::find(values.begin(), values.end(), 7452);
+      acc += *it;
+    }
+    const auto after = std::chrono::steady_clock::now();
+    const auto duration = fp_seconds(after - before);
+    std::cout << std::format(
+      "linear search duration: {}, acc: {}\n", duration, acc);
+  }
+
+  {
+    const auto before = std::chrono::steady_clock::now();
+    int64_t acc = 0;
+    for (int i = 0; i < 100'000; i++) {
+      auto index = binary_search_iterative(7452, values);
+      acc += values[*index];
+    }
+    const auto after = std::chrono::steady_clock::now();
+    const auto duration = fp_seconds(after - before);
+    std::cout << std::format(
+      "binary search duration: {}, acc: {}\n", duration, acc);
   }
 
   return 0;

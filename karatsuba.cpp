@@ -84,6 +84,96 @@ int karabutsa_recursive(const int x, const int y) {
   return solved;
 }
 
+int karabutsa_iterative_recursive(const int x, const int y) {
+  enum class return_address_e { before, recursive1, recursive2, recursive3 };
+  struct frame_t {
+    return_address_e return_address;
+    int x;
+    int y;
+    std::string x_str;
+    std::string y_str;
+    int half_digits;
+    int a;
+    int b;
+    int c;
+    int d;
+    int step1;
+    int step2;
+    int step3;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{.return_address = return_address_e::before, .x = x, .y = y});
+
+  int return_value;
+  while (!call_stack.empty()) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      top.x_str = std::to_string(top.x);
+      top.y_str = std::to_string(top.y);
+      if (top.x_str.size() == 1 && top.y_str.size() == 1) {
+        std::cout << std::format(
+          "Lookup {} * {} = {}\n", top.x_str, top.y_str,
+          g_mult_table[std::stoi(top.y_str) * 10 + std::stoi(top.x_str)]);
+        return_value =
+          g_mult_table[std::stoi(top.y_str) * 10 + std::stoi(top.x_str)];
+        call_stack.pop();
+        continue;
+      }
+      top.return_address = return_address_e::recursive1;
+      std::cout << std::format("Multiplying {} * {}\n", top.x_str, top.y_str);
+      if (top.x_str.size() < top.y_str.size()) {
+        top.x_str = pad_zeros(
+          top.x_str, top.y_str.size() - top.x_str.size(), side_e::left);
+      } else if (top.y_str.size() < top.x_str.size()) {
+        top.y_str = pad_zeros(
+          top.y_str, top.x_str.size() - top.y_str.size(), side_e::left);
+      }
+      top.half_digits = top.x_str.size() / 2;
+      top.a = std::stoi(top.x_str.substr(0, top.half_digits));
+      top.b = std::stoi(top.x_str.substr(top.half_digits));
+      top.c = std::stoi(top.y_str.substr(0, top.half_digits));
+      top.d = std::stoi(top.y_str.substr(top.half_digits));
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before, .x = top.a, .y = top.c});
+    } else if (top.return_address == return_address_e::recursive1) {
+      top.return_address = return_address_e::recursive2;
+      top.step1 = return_value;
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before, .x = top.b, .y = top.d});
+    } else if (top.return_address == return_address_e::recursive2) {
+      top.return_address = return_address_e::recursive3;
+      top.step2 = return_value;
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before,
+          .x = top.a + top.b,
+          .y = top.c + top.d});
+    } else if (top.return_address == return_address_e::recursive3) {
+      top.step3 = return_value;
+      const auto step4 = top.step3 - top.step2 - top.step1;
+
+      const auto step1_padding = (top.x_str.size() - top.half_digits)
+                               + (top.x_str.size() - top.half_digits);
+      const auto step1_padded = std::stoi(
+        pad_zeros(std::to_string(top.step1), step1_padding, side_e::right));
+      const auto step4_padding = top.x_str.size() - top.half_digits;
+      const auto step4_padded = std::stoi(
+        pad_zeros(std::to_string(step4), step4_padding, side_e::right));
+
+      const auto solved = step1_padded + top.step2 + step4_padded;
+      std::cout << std::format(
+        "Solved {} * {} = {}\n", top.x_str, top.y_str, solved);
+
+      return_value = solved;
+      call_stack.pop();
+    }
+  }
+  return return_value;
+}
+
 int main(int argc, char** argv) {
 #if 0 // debug
   const auto number_pad_left = pad_zeros(std::to_string(100), 4, side_e::left);
@@ -107,6 +197,13 @@ int main(int argc, char** argv) {
   std::cout << std::format(
     "recursive karabutsa:\n{} * {} = {}\n{} * {} = {}\n", lhs, rhs,
     recursive_result, lhs, rhs, lhs * rhs);
+
+  const auto iterative_recursive_result =
+    karabutsa_iterative_recursive(lhs, rhs);
+  std::cout << '\n';
+  std::cout << std::format(
+    "iterative recursive karabutsa:\n{} * {} = {}\n{} * {} = {}\n", lhs, rhs,
+    iterative_recursive_result, lhs, rhs, lhs * rhs);
 
   return 0;
 }

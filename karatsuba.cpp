@@ -39,13 +39,18 @@ std::string pad_zeros(
   return std::string();
 }
 
-int karabutsa(int x, int y) {
+int karabutsa_recursive(const int x, const int y) {
   auto x_str = std::to_string(x);
   auto y_str = std::to_string(y);
 
   if (x_str.size() == 1 && y_str.size() == 1) {
+    std::cout << std::format(
+      "Lookup {} * {} = {}\n", x_str, y_str,
+      g_mult_table[std::stoi(y_str) * 10 + std::stoi(x_str)]);
     return g_mult_table[std::stoi(y_str) * 10 + std::stoi(x_str)];
   }
+
+  std::cout << std::format("Multiplying {} * {}\n", x_str, y_str);
 
   if (x_str.size() < y_str.size()) {
     x_str = pad_zeros(x_str, y_str.size() - x_str.size(), side_e::left);
@@ -60,9 +65,9 @@ int karabutsa(int x, int y) {
   const auto c = std::stoi(y_str.substr(0, half_digits));
   const auto d = std::stoi(y_str.substr(half_digits));
 
-  const auto step1 = karabutsa(a, c);
-  const auto step2 = karabutsa(b, d);
-  const auto step3 = karabutsa(a + b, c + d);
+  const auto step1 = karabutsa_recursive(a, c);
+  const auto step2 = karabutsa_recursive(b, d);
+  const auto step3 = karabutsa_recursive(a + b, c + d);
   const auto step4 = step3 - step2 - step1;
 
   const auto step1_padding =
@@ -73,7 +78,10 @@ int karabutsa(int x, int y) {
   const auto step4_padded =
     std::stoi(pad_zeros(std::to_string(step4), step4_padding, side_e::right));
 
-  return step1_padded + step2 + step4_padded;
+  const auto solved = step1_padded + step2 + step4_padded;
+  std::cout << std::format("Solved {} * {} = {}\n", x_str, y_str, solved);
+
+  return solved;
 }
 
 int main(int argc, char** argv) {
@@ -94,7 +102,11 @@ int main(int argc, char** argv) {
 
   const auto lhs = 1357;
   const auto rhs = 2468;
-  std::cout << std::format("{} * {} = {}\n", lhs, rhs, karabutsa(lhs, rhs));
+  const auto recursive_result = karabutsa_recursive(lhs, rhs);
+  std::cout << '\n';
+  std::cout << std::format(
+    "recursive karabutsa:\n{} * {} = {}\n{} * {} = {}\n", lhs, rhs,
+    recursive_result, lhs, rhs, lhs * rhs);
 
   return 0;
 }

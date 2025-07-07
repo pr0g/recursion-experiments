@@ -96,3 +96,7 @@ target_compile_features(array-sum-div PRIVATE cxx_std_20)
 add_executable(karatsuba)
 target_sources(karatsuba PRIVATE karatsuba.cpp)
 target_compile_features(karatsuba PRIVATE cxx_std_20)
+
+add_executable(permutations)
+target_sources(permutations PRIVATE permutations.cpp)
+target_compile_features(permutations PRIVATE cxx_std_20)

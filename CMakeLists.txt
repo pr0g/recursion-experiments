@@ -104,3 +104,7 @@ target_compile_features(permutations PRIVATE cxx_std_20)
 add_executable(combinations)
 target_sources(combinations PRIVATE combinations.cpp)
 target_compile_features(combinations PRIVATE cxx_std_20)
+
+add_executable(parentheses)
+target_sources(parentheses PRIVATE parentheses.cpp)
+target_compile_features(parentheses PRIVATE cxx_std_20)

@@ -108,3 +108,7 @@ target_compile_features(combinations PRIVATE cxx_std_20)
 add_executable(parentheses)
 target_sources(parentheses PRIVATE parentheses.cpp)
 target_compile_features(parentheses PRIVATE cxx_std_20)
+
+add_executable(power-set)
+target_sources(power-set PRIVATE power-set.cpp)
+target_compile_features(power-set PRIVATE cxx_std_20)

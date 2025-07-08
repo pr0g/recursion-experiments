@@ -100,3 +100,7 @@ target_compile_features(karatsuba PRIVATE cxx_std_20)
 add_executable(permutations)
 target_sources(permutations PRIVATE permutations.cpp)
 target_compile_features(permutations PRIVATE cxx_std_20)
+
+add_executable(combinations)
+target_sources(combinations PRIVATE combinations.cpp)
+target_compile_features(combinations PRIVATE cxx_std_20)

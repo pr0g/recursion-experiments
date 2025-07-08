@@ -124,6 +124,84 @@ std::vector<std::string> get_permutations_with_repetitions_recursive(
   return results;
 }
 
+std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
+  const std::string& characters,
+  std::optional<int> permutation_length = std::nullopt,
+  const std::string& prefix = "") {
+  enum class return_address_e { before, recursive };
+  struct frame_t {
+    return_address_e return_address;
+    std::string characters;
+    std::optional<int> permutation_length = std::nullopt;
+    std::string prefix = "";
+    std::vector<std::string> results;
+    std::vector<std::string> next_permutations;
+    int index;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{
+      .return_address = return_address_e::before,
+      .characters = characters,
+      .permutation_length = permutation_length,
+      .prefix = prefix});
+  std::vector<std::string> return_value;
+  while (!call_stack.empty()) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      if (top.permutation_length == std::nullopt) {
+        top.permutation_length = top.characters.length();
+      }
+      if (top.permutation_length == 0) {
+        return_value = std::vector<std::string>{top.prefix};
+        call_stack.pop();
+        continue;
+      }
+      top.return_address = return_address_e::recursive;
+      const auto indent = std::string(top.prefix.length(), '.');
+      std::cout << std::format(
+        "{}Start, args=(\"{}\"), {}, {}\n", indent, top.characters,
+        *top.permutation_length, top.prefix);
+      std::vector<std::string> results;
+      std::cout << std::format(
+        "{}Adding each char to prefix \"{}\"\n", indent, top.prefix);
+      top.index = 0;
+      if (top.index < top.characters.size()) {
+        const char character = top.characters[top.index];
+        std::string new_prefix = top.prefix + character;
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .characters = top.characters,
+            .permutation_length = *top.permutation_length - 1,
+            .prefix = new_prefix});
+        continue;
+      }
+      return_value = std::vector<std::string>();
+    } else if (top.return_address == return_address_e::recursive) {
+      top.next_permutations = return_value;
+      top.results.insert(
+        top.results.end(), top.next_permutations.begin(),
+        top.next_permutations.end());
+      top.index++;
+      if (top.index < top.characters.size()) {
+        const char character = top.characters[top.index];
+        std::string new_prefix = top.prefix + character;
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .characters = top.characters,
+            .permutation_length = *top.permutation_length - 1,
+            .prefix = new_prefix});
+      } else {
+        return_value = top.results;
+        call_stack.pop();
+      }
+    }
+  }
+  return return_value;
+}
+
 int main(int argc, char** argv) {
   {
     const auto letters = std::string{"ABCD"};
@@ -149,14 +227,24 @@ int main(int argc, char** argv) {
 
   {
     const auto letters = std::string{"JPB123"};
-    const auto permutations =
-      get_permutations_with_repetitions_recursive(letters, 4);
-
+    {
+      const auto permutations_recursive =
+        get_permutations_with_repetitions_recursive(letters, 4);
+      std::cout << '\n';
+      std::cout << "recursive permutations with repetitions:\n";
+      for (const auto permutation : permutations_recursive) {
+        std::cout << permutation << '\n';
+      }
+    }
     std::cout << '\n';
-
-    std::cout << "recursive permutations with repetitions:\n";
-    for (const auto permutation : permutations) {
-      std::cout << permutation << '\n';
+    {
+      const auto permutations_iterative =
+        get_permutations_with_repetitions_iterative_recursive(letters, 4);
+      std::cout << '\n';
+      std::cout << "iterative permutations with repetitions:\n";
+      for (const auto permutation : permutations_iterative) {
+        std::cout << permutation << '\n';
+      }
     }
   }
 

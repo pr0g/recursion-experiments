@@ -30,15 +30,58 @@ std::vector<std::string> get_permutations(
   return permutations;
 }
 
+std::vector<std::string> get_permutations_with_repetitions(
+  const std::string& characters,
+  std::optional<int> permutation_length = std::nullopt,
+  const std::string& prefix = "") {
+  if (permutation_length == std::nullopt) {
+    permutation_length = characters.length();
+  }
+  if (permutation_length == 0) {
+    return std::vector<std::string>{prefix};
+  }
+  const auto indent = std::string(prefix.length(), '.');
+  std::cout << std::format(
+    "{}Start, args=(\"{}\"), {}, {}\n", indent, characters, *permutation_length,
+    prefix);
+  std::vector<std::string> results;
+  std::cout << std::format(
+    "{}Adding each char to prefix \"{}\"\n", indent, prefix);
+  for (const auto character : characters) {
+    std::string new_prefix = prefix + character;
+    const auto next_permutations = get_permutations_with_repetitions(
+      characters, *permutation_length - 1, new_prefix);
+    results.insert(
+      results.end(), next_permutations.begin(), next_permutations.end());
+  }
+  return results;
+}
+
 int main(int argc, char** argv) {
-  const auto letters = std::string{"ABCD"};
-  const auto permutations = get_permutations(letters);
+  {
+    const auto letters = std::string{"ABCD"};
+    const auto permutations = get_permutations(letters);
+
+    std::cout << '\n';
+
+    std::cout << "recursive permutations:\n";
+    for (const auto permutation : permutations) {
+      std::cout << permutation << '\n';
+    }
+  }
 
   std::cout << '\n';
 
-  std::cout << "recursive permutations:\n";
-  for (const auto permutation : permutations) {
-    std::cout << permutation << '\n';
+  {
+    const auto letters = std::string{"JPB123"};
+    const auto permutations = get_permutations_with_repetitions(letters, 4);
+
+    std::cout << '\n';
+
+    std::cout << "recursive permutations with repetitions:\n";
+    for (const auto permutation : permutations) {
+      std::cout << permutation << '\n';
+    }
   }
 
   return 0;

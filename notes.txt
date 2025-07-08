@@ -4,3 +4,7 @@
 
 when converting recursive to iterative with explicit stack, only include function parameter (and return_address_e) in the frame_t object
   remove as many local variables as possible to make this clearer (e.g. 'head' with 'head'/'tail' array sum)
+
+Insights
+
+1. When passing state down to arguments, do not mutate variable at the current callstack level (that will be changed after the recursive function called returns)

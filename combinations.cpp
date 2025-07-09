@@ -63,6 +63,67 @@ std::vector<std::string> get_combinations_recursive(
   return combinations;
 }
 
+std::vector<std::string> get_combinations_iterative_recursive(
+  const std::string& characters, int k) {
+  enum class return_address_e { before, recursive1, recursive2 };
+  struct frame_t {
+    return_address_e return_address;
+    std::string characters;
+    int k;
+    std::vector<std::string> combinations;
+    std::string head;
+    std::string tail;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{
+      .return_address = return_address_e::before,
+      .characters = characters,
+      .k = k});
+  std::vector<std::string> return_value;
+  while (!call_stack.empty()) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      if (top.k == 0) {
+        return_value = std::vector<std::string>({""});
+        call_stack.pop();
+        continue;
+      } else if (top.characters.empty()) {
+        return_value = std::vector<std::string>();
+        call_stack.pop();
+        continue;
+      }
+      top.return_address = return_address_e::recursive1;
+      top.head = top.characters.substr(0, 1);
+      top.tail = top.characters.substr(1);
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before,
+          .characters = top.tail,
+          .k = top.k - 1});
+    } else if (top.return_address == return_address_e::recursive1) {
+      top.return_address = return_address_e::recursive2;
+      const auto tail_combinations = return_value;
+      for (const auto& tail_combination : tail_combinations) {
+        top.combinations.push_back(top.head + tail_combination);
+      }
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before,
+          .characters = top.tail,
+          .k = top.k});
+    } else if (top.return_address == return_address_e::recursive2) {
+      const auto next_combinations = return_value;
+      top.combinations.insert(
+        top.combinations.end(), next_combinations.begin(),
+        next_combinations.end());
+      return_value = top.combinations;
+      call_stack.pop();
+    }
+  }
+  return return_value;
+}
+
 template<typename T>
 std::vector<std::vector<T>> get_combinations_any_recursive(
   const std::vector<T>& values, int k) {
@@ -95,7 +156,7 @@ int main(int argc, char** argv) {
       std::cout << std::format("{}\n", combination);
     }
   }
-  std::cout << "\n";
+  std::cout << '\n';
   {
     const auto combinations = get_combinations_recursive("ABC", 3);
     std::cout << "recursive combinations:\n";
@@ -103,7 +164,7 @@ int main(int argc, char** argv) {
       std::cout << std::format("{}\n", combination);
     }
   }
-  std::cout << "\n";
+  std::cout << '\n';
   {
     const auto combinations = get_combinations_recursive("ABC", 1);
     std::cout << "recursive combinations:\n";
@@ -111,7 +172,7 @@ int main(int argc, char** argv) {
       std::cout << std::format("{}\n", combination);
     }
   }
-  std::cout << "\n";
+  std::cout << '\n';
   {
     const auto combinations = get_combinations_recursive("ABCDE", 3);
     std::cout << "recursive combinations:\n";
@@ -119,16 +180,24 @@ int main(int argc, char** argv) {
       std::cout << std::format("{}\n", combination);
     }
   }
-  std::cout << "\n";
+  std::cout << '\n';
   {
     const auto combinations =
       get_combinations_any_recursive(std::vector<int>{1, 2, 3, 4, 5}, 3);
-    std::cout << "recursive combinations:\n";
+    std::cout << "recursive combinations (any):\n";
     for (const auto& combination : combinations) {
       for (auto v : combination | std::views::take(combination.size() - 1)) {
         std::cout << std::format("{},", v);
       }
       std::cout << combination[combination.size() - 1] << '\n';
+    }
+  }
+  std::cout << '\n';
+  {
+    const auto combinations = get_combinations_iterative_recursive("ABCDE", 3);
+    std::cout << "iterative combinations:\n";
+    for (const auto& combination : combinations) {
+      std::cout << std::format("{}\n", combination);
     }
   }
   return 0;

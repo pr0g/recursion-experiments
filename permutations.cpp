@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <ranges>
 #include <span>
 
 std::vector<std::string> get_permutations_recursive(
@@ -202,6 +203,34 @@ std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
   return return_value;
 }
 
+template<typename T>
+std::vector<std::vector<T>> get_permutations_any_recursive(
+  const std::vector<T>& values) {
+  if (values.size() == 1) {
+    return std::vector<std::vector<T>>(
+      1, std::vector<T>(values.begin(), values.end()));
+  }
+  const auto head = values[0];
+  const auto tail_view = values | std::views::drop(1);
+  const auto tail = std::vector<T>(tail_view.begin(), tail_view.end());
+  const auto tail_permutations = get_permutations_any_recursive(tail);
+  std::vector<std::vector<T>> permutations;
+  for (const auto tail_permutation : tail_permutations) {
+    for (int i = 0; i < tail_permutation.size() + 1; i++) {
+      const auto before_view = tail_permutation | std::views::take(i);
+      const auto after_view = tail_permutation | std::views::drop(i);
+      std::vector<T> new_permutation;
+      new_permutation.insert(
+        new_permutation.end(), before_view.begin(), before_view.end());
+      new_permutation.insert(new_permutation.end(), head);
+      new_permutation.insert(
+        new_permutation.end(), after_view.begin(), after_view.end());
+      permutations.push_back(new_permutation);
+    }
+  }
+  return permutations;
+}
+
 int main(int argc, char** argv) {
   {
     const auto letters = std::string{"ABCD"};
@@ -244,6 +273,20 @@ int main(int argc, char** argv) {
       std::cout << "iterative permutations with repetitions:\n";
       for (const auto permutation : permutations_iterative) {
         std::cout << permutation << '\n';
+      }
+    }
+    std::cout << '\n';
+    {
+      std::vector<int> numbers = {1, 2, 3, 4, 5};
+      const auto permutations_iterative =
+        get_permutations_any_recursive(numbers);
+      std::cout << "\recursive permutations (any): "
+                << permutations_iterative.size() << '\n';
+      for (const auto permutation : permutations_iterative) {
+        for (auto v : permutation | std::views::take(permutation.size() - 1)) {
+          std::cout << std::format("{},", v);
+        }
+        std::cout << permutation[permutation.size() - 1] << '\n';
       }
     }
   }

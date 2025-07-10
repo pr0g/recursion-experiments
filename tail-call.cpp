@@ -33,6 +33,13 @@ std::string reverse_string_recursive_tail_2(std::string_view string) {
   return reverse_string_recursive_tail_internal(string, buffer);
 }
 
+bool is_odd_recursive_tail(int n, bool inversion_acc = false) {
+  if (n == 0) {
+    return inversion_acc;
+  }
+  return is_odd_recursive_tail(n - 1, !inversion_acc);
+}
+
 int main(int argc, char** argv) {
   std::cout << "factorial recursive tail call:\n";
   for (int i = 0; i <= 20; i++) {
@@ -51,6 +58,12 @@ int main(int argc, char** argv) {
     "\"{}\" reversed \"{}\"\n", value, reverse_string_recursive_tail_2(value));
   // runs in Release, segmentation fault in Debug
   std::string many = std::string(100000, 'a');
-  reverse_string_recursive_tail_2(many);
+  // reverse_string_recursive_tail_2(many);
+  std::cout << '\n';
+  std::cout << "recursive is odd:\n";
+  std::cout << std::format(
+    "{} is {}\n", 42, is_odd_recursive_tail(42) ? "odd" : "even");
+  std::cout << std::format(
+    "{} is {}\n", 99, is_odd_recursive_tail(99) ? "odd" : "even");
   return 0;
 }

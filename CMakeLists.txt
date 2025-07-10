@@ -120,3 +120,24 @@ target_compile_features(power-set PRIVATE cxx_std_20)
 add_executable(tail-call)
 target_sources(tail-call PRIVATE tail-call.cpp)
 target_compile_features(tail-call PRIVATE cxx_std_20)
+
+option(SUPERBUILD "Perform a superbuild (or not)" OFF)
+
+if(SUPERBUILD)
+  add_subdirectory(third-party)
+  return()
+endif()
+
+find_package(SDL3 CONFIG REQUIRED)
+
+include(FetchContent)
+FetchContent_Declare(
+  as-c-math
+  GIT_REPOSITORY https://github.com/pr0g/as-c-math.git
+  GIT_TAG 338dd16a87a138f2fca0c955fd7dd91d25f9ffc2)
+FetchContent_MakeAvailable(as-c-math)
+
+add_executable(fractals)
+target_sources(fractals PRIVATE fractals.cpp)
+target_compile_features(fractals PRIVATE cxx_std_20)
+target_link_libraries(fractals PRIVATE SDL3::SDL3 as-c-math)

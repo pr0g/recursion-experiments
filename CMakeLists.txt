@@ -112,3 +112,7 @@ target_compile_features(parentheses PRIVATE cxx_std_20)
 add_executable(power-set)
 target_sources(power-set PRIVATE power-set.cpp)
 target_compile_features(power-set PRIVATE cxx_std_20)
+
+add_executable(tail-call)
+target_sources(tail-call PRIVATE tail-call.cpp)
+target_compile_features(tail-call PRIVATE cxx_std_20)

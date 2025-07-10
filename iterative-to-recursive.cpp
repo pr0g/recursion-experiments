@@ -41,18 +41,26 @@ int find_substring_recursive(
 }
 
 int main(int argc, char** argv) {
-
   say_hello_iterative(5);
   std::cout << "---\n";
   say_hello_recursive(5);
 
   std::cout << '\n';
 
-  const int offset_it = find_substring_iterative("cat", "My cat Ollie");
-  std::cout << std::format("Found substring at offset {} (it)\n", offset_it);
-
-  const int offset_rec = find_substring_iterative("cat", "My cat Ollie");
-  std::cout << std::format("Found substring at offset {} (rec)\n", offset_rec);
-
+  std::string needle = "cat";
+  std::string haystack = "My cat Ollie";
+  std::cout << "find substring iterative:\n";
+  const int offset_it =
+    find_substring_iterative(needle.c_str(), haystack.c_str());
+  std::cout << std::format(
+    "Found needle \"{}\" in haystack \"{}\" at offset {}\n", needle, haystack,
+    offset_it);
+  std::cout << '\n';
+  std::cout << "find substring recursive:\n";
+  const int offset_rec =
+    find_substring_recursive(needle.c_str(), haystack.c_str());
+  std::cout << std::format(
+    "Found needle \"{}\" in haystack \"{}\" at offset {}\n", needle, haystack,
+    offset_rec);
   return 0;
 }

@@ -1,19 +1,52 @@
 #include <format>
 #include <iostream>
+#include <stack>
 
-std::ostream_iterator<char> g_out(std::cout);
-
-void count_down_and_up(int number) {
-  std::format_to(g_out, "{}\n", number);
+void count_down_and_up_recursive(const int number) {
+  std::cout << std::format("{}\n", number);
   if (number == 0) {
-    std::format_to(g_out, "reached base case\n");
+    std::cout << std::format("reached base case\n");
     return;
   }
-  count_down_and_up(number - 1);
-  std::format_to(g_out, "{} returning\n", number);
+  count_down_and_up_recursive(number - 1);
+  std::cout << std::format("{} returning\n", number);
+}
+
+void count_down_and_up_iterative_recursive(const int number) {
+  enum class return_address_e { before, recursive };
+  struct frame_t {
+    return_address_e return_address;
+    int number;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{.return_address = return_address_e::before, .number = number});
+  while (!call_stack.empty()) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      std::cout << std::format("{}\n", top.number);
+      if (top.number == 0) {
+        std::cout << std::format("reached base case\n");
+        call_stack.pop();
+        continue;
+      }
+      top.return_address = return_address_e::recursive;
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before,
+          .number = top.number - 1});
+    } else if (top.return_address == return_address_e::recursive) {
+      std::cout << std::format("{} returning\n", top.number);
+      call_stack.pop();
+    }
+  }
 }
 
 int main(int argc, char** argv) {
-  count_down_and_up(10);
+  std::cout << "count up and down recursive:\n";
+  count_down_and_up_recursive(10);
+  std::cout << '\n';
+  std::cout << "count up and down iterative recursive:\n";
+  count_down_and_up_iterative_recursive(10);
   return 0;
 }

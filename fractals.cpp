@@ -25,9 +25,32 @@ struct fractals_t {
   std::vector<line_t> lines;
 };
 
+struct turtle_t {
+  as_vec2f heading = {1.0f, 0.0f};
+  as_point2f position = {0.0f, 0.0f};
+  float scale = 0.8f;
+};
+
+// todo - move to as-c-math library...
 as_vec2f as_mat22f_mul_vec2f(const as_mat22f* const mat, const as_vec2f vec) {
   return (as_vec2f){.x = mat->elem[0] * vec.x + mat->elem[1] * vec.y,
                     .y = mat->elem[2] * vec.x + mat->elem[3] * vec.y};
+}
+
+void turtle_forward(turtle_t& turtle, const int distance) {
+  turtle.position = as_point2f_add_vec2f(
+    turtle.position,
+    as_vec2f_mul_float(turtle.heading, turtle.scale * distance));
+}
+
+void turtle_left(turtle_t& turtle, const float degrees) {
+  as_mat22f rotation = as_mat22f_rotation(as_radians_from_degrees(-degrees));
+  turtle.heading = as_mat22f_mul_vec2f(&rotation, turtle.heading);
+}
+
+void turtle_right(turtle_t& turtle, const float degrees) {
+  as_mat22f rotation = as_mat22f_rotation(as_radians_from_degrees(degrees));
+  turtle.heading = as_mat22f_mul_vec2f(&rotation, turtle.heading);
 }
 
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
@@ -49,19 +72,15 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 
   fractals_t* fractals = new fractals_t();
 
-  as_mat22f rotation = as_mat22f_rotation(as_radians_from_degrees(-59));
-  as_point2f begin = {0.0f, 0.0f};
-  as_vec2f heading = {1.0f, 0.0f};
-  const float scale = 0.8f;
+  turtle_t turtle;
   for (int i = 0; i < 360; i++) {
-    auto end =
-      as_point2f_add_vec2f(begin, as_vec2f_mul_float(heading, scale * i));
+    const auto turtle_last_position = turtle.position;
+    turtle_forward(turtle, i);
+    turtle_left(turtle, 59.0f);
     fractals->lines.push_back(
       line_t{
-        .begin = as_point2i_from_point2f(begin),
-        .end = as_point2i_from_point2f(end)});
-    begin = end;
-    heading = as_mat22f_mul_vec2f(&rotation, heading);
+        .begin = as_point2i_from_point2f(turtle_last_position),
+        .end = as_point2i_from_point2f(turtle.position)});
   }
 
   *appstate = fractals;

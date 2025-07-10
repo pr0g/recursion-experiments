@@ -73,6 +73,25 @@ int fibonacci_iterative_recursive(const int n) {
   return return_value;
 }
 
+int fibonacci_recursive_memoized_internal(
+  int n, std::unordered_map<int, int>& cache) {
+  if (n <= 1) {
+    return n;
+  }
+  if (auto it = cache.find(n); it != cache.end()) {
+    return it->second;
+  }
+  const int minus1 = fibonacci_recursive_memoized_internal(n - 1, cache);
+  const int minus2 = fibonacci_recursive_memoized_internal(n - 2, cache);
+  cache.insert({n, minus1 + minus2});
+  return minus1 + minus2;
+}
+
+int fibonacci_recursive_memoized(int n) {
+  std::unordered_map<int, int> cache;
+  return fibonacci_recursive_memoized_internal(n, cache);
+}
+
 int main(int argc, char** argv) {
   std::cout << "fibonacci iterative:\n";
   for (int i = 0; i < 20; i++) {
@@ -87,6 +106,11 @@ int main(int argc, char** argv) {
   std::cout << "fibonacci iterative recursive:\n";
   for (int i = 0; i < 20; i++) {
     std::cout << std::format("{} is {}\n", i, fibonacci_iterative_recursive(i));
+  }
+  std::cout << '\n';
+  std::cout << "fibonacci recursive memoized:\n";
+  for (int i = 0; i < 20; i++) {
+    std::cout << std::format("{} is {}\n", i, fibonacci_recursive_memoized(i));
   }
   return 0;
 }

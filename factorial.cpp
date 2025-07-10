@@ -2,8 +2,6 @@
 #include <iostream>
 #include <stack>
 
-std::ostream_iterator<char> g_out(std::cout);
-
 int factorial_iterative(int number) {
   int fact = 1;
   for (int index = number; index > 0; index--) {
@@ -68,15 +66,21 @@ int factorial_recursive_iterative(int n) {
 }
 
 int main(int argc, char** argv) {
-  std::format_to(g_out, "{}! (it) is {}\n", 5, factorial_iterative(5));
-  std::format_to(g_out, "{}! (rec) is {}\n", 5, factorial_recursive(5));
-
-  std::format_to(
-    g_out, "{}! (rec_it) is {}\n", 5, factorial_recursive_iterative(5));
-
-  // for (int i = 0; i < 6; i++) {
-  //   std::format_to(
-  //     g_out, "{}! (rec_it) is {}\n", i, factorial_recursive_iterative(i));
-  // }
+  const int count = 10;
+  std::cout << "factorial iterative:\n";
+  for (int i = 0; i <= count; i++) {
+    std::cout << std::format("{}! is {}\n", i, factorial_iterative(i));
+  }
+  std::cout << '\n';
+  std::cout << "factorial recursive:\n";
+  for (int i = 0; i <= count; i++) {
+    std::cout << std::format("{}! is {}\n", i, factorial_recursive(i));
+  }
+  std::cout << '\n';
+  std::cout << "factorial iterative recursive:\n";
+  for (int i = 0; i <= count; i++) {
+    std::cout << std::format(
+      "{}! is {}\n", i, factorial_recursive_iterative(i));
+  }
   return 0;
 }

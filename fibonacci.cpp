@@ -136,28 +136,29 @@ int fibonacci_iterative_recursive_memoized(const int n) {
 }
 
 int main(int argc, char** argv) {
+  const int count = 20;
   std::cout << "fibonacci iterative:\n";
-  for (int i = 0; i <= 20; i++) {
+  for (int i = 0; i <= count; i++) {
     std::cout << std::format("{} is {}\n", i, fibonacci_iterative(i));
   }
   std::cout << '\n';
   std::cout << "fibonacci recursive:\n";
-  for (int i = 0; i <= 20; i++) {
+  for (int i = 0; i <= count; i++) {
     std::cout << std::format("{} is {}\n", i, fibonacci_recursive(i));
   }
   std::cout << '\n';
   std::cout << "fibonacci iterative recursive:\n";
-  for (int i = 0; i <= 20; i++) {
+  for (int i = 0; i <= count; i++) {
     std::cout << std::format("{} is {}\n", i, fibonacci_iterative_recursive(i));
   }
   std::cout << '\n';
   std::cout << "fibonacci recursive memoized:\n";
-  for (int i = 0; i <= 20; i++) {
+  for (int i = 0; i <= count; i++) {
     std::cout << std::format("{} is {}\n", i, fibonacci_recursive_memoized(i));
   }
   std::cout << '\n';
   std::cout << "fibonacci iterative recursive memoized:\n";
-  for (int i = 0; i <= 20; i++) {
+  for (int i = 0; i <= count; i++) {
     std::cout << std::format(
       "{} is {}\n", i, fibonacci_iterative_recursive_memoized(i));
   }

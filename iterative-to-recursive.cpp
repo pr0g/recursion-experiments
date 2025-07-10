@@ -14,26 +14,22 @@ void say_hello_recursive(int n, int i = 0) {
   }
 }
 
-int find_substring_iterative(const char* needle, const char* haystack) {
-  int i = 0;
-  const int haystack_length = strlen(haystack);
-  const int needle_length = strlen(needle);
-  while (i < haystack_length) {
-    if (strncmp(haystack + i, needle, needle_length) == 0) {
+int find_substring_iterative(
+  std::string_view needle, std::string_view haystack) {
+  for (int i = 0; i < haystack.length(); i++) {
+    if (haystack.substr(i, needle.length()) == needle) {
       return i;
     }
-    i++;
   }
   return -1;
 }
 
 int find_substring_recursive(
-  const char* needle, const char* haystack, int i = 0) {
-  if (i >= strlen(haystack)) {
+  std::string_view needle, std::string_view haystack, int i = 0) {
+  if (i >= haystack.length()) {
     return -1;
   }
-  const int needle_length = strlen(needle);
-  if (strncmp(haystack + i, needle, needle_length) == 0) {
+  if (haystack.substr(i, needle.length()) == needle) {
     return i;
   } else {
     return find_substring_recursive(needle, haystack, i + 1);

@@ -21,19 +21,19 @@ int fibonacci_iterative(int n) {
 // 2. What argument is passed to the recursive function call?
 // 3. How does the argument become closer to the base case?
 
-int fibonacci_recursive(int n) {
+int fibonacci_recursive_1(int n) {
   if (n <= 1) {
     return n;
   }
-  return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2);
+  return fibonacci_recursive_1(n - 1) + fibonacci_recursive_1(n - 2);
 }
 
-int fibonacci_recursive2(int n) {
+int fibonacci_recursive_2(int n) {
   if (n <= 1) {
     return n;
   }
-  int minus1 = fibonacci_recursive2(n - 1);
-  int minus2 = fibonacci_recursive2(n - 2);
+  int minus1 = fibonacci_recursive_2(n - 1);
+  int minus2 = fibonacci_recursive_2(n - 2);
   return minus1 + minus2;
 }
 
@@ -144,7 +144,7 @@ int main(int argc, char** argv) {
   std::cout << '\n';
   std::cout << "fibonacci recursive:\n";
   for (int i = 0; i <= count; i++) {
-    std::cout << std::format("{} is {}\n", i, fibonacci_recursive(i));
+    std::cout << std::format("{} is {}\n", i, fibonacci_recursive_1(i));
   }
   std::cout << '\n';
   std::cout << "fibonacci iterative recursive:\n";

@@ -20,7 +20,7 @@ auto partition(std::span<int> items, int value) {
   return i;
 }
 
-void quicksort_recursive(
+void quicksort_recursive_1(
   std::span<int> items, std::optional<int> pivot = std::nullopt) {
   if (items.size() <= 1) {
     return;
@@ -36,11 +36,11 @@ void quicksort_recursive(
   std::iter_swap(midpoint, std::prev(items.end()));
 
   const auto midpoint_index = std::distance(items.begin(), midpoint);
-  quicksort_recursive(items.subspan(0, midpoint_index));
-  quicksort_recursive(items.subspan(midpoint_index));
+  quicksort_recursive_1(items.subspan(0, midpoint_index));
+  quicksort_recursive_1(items.subspan(midpoint_index));
 }
 
-void quicksort_recursive2(
+void quicksort_recursive_2(
   std::span<int> items, std::optional<int> pivot = std::nullopt) {
   if (items.size() <= 1) {
     return;
@@ -54,11 +54,11 @@ void quicksort_recursive2(
   // put the pivot on the left side of right partition
   std::swap(items[midpoint], items[items.size() - 1]);
 
-  quicksort_recursive2(items.subspan(0, midpoint));
-  quicksort_recursive2(items.subspan(midpoint));
+  quicksort_recursive_2(items.subspan(0, midpoint));
+  quicksort_recursive_2(items.subspan(midpoint));
 }
 
-void quicksort_iterative_recursive2(std::span<int> items) {
+void quicksort_iterative_recursive_2(std::span<int> items) {
   enum class return_address_e { before, recursive1, recursive2 };
   struct frame_t {
     return_address_e return_address;
@@ -99,21 +99,21 @@ int main(int argc, char** argv) {
 
   {
     auto items_recursive = items;
-    quicksort_recursive(items_recursive);
+    quicksort_recursive_1(items_recursive);
     std::cout << "recursive quicksort: \n";
     print_items(items_recursive);
   }
 
   {
     auto items_recursive2 = items;
-    quicksort_recursive2(items_recursive2);
+    quicksort_recursive_2(items_recursive2);
     std::cout << "recursive2 quicksort: \n";
     print_items(items_recursive2);
   }
 
   {
     auto items_iterative_recursive2 = items;
-    quicksort_iterative_recursive2(items_iterative_recursive2);
+    quicksort_iterative_recursive_2(items_iterative_recursive2);
     std::cout << "iterative recursive2 quicksort: \n";
     print_items(items_iterative_recursive2);
   }

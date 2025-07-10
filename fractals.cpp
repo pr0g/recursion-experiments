@@ -37,6 +37,43 @@ as_vec2f as_mat22f_mul_vec2f(const as_mat22f* const mat, const as_vec2f vec) {
                     .y = mat->elem[2] * vec.x + mat->elem[3] * vec.y};
 }
 
+as_point2f midpoint(const as_point2f& begin, const as_point2f& end) {
+  return as_point2f_add_vec2f(
+    begin, as_vec2f_mul_float(as_point2f_sub_point2f(end, begin), 0.5f));
+}
+
+bool too_small(const as_point2f& p1, const as_point2f& p2) {
+  return as_vec2f_length(as_point2f_sub_point2f(p2, p1)) < 4.0f;
+}
+
+void draw_triangle(
+  fractals_t& fractals, const as_point2f& p1, const as_point2f& p2,
+  const as_point2f& p3) {
+  if (too_small(p1, p2)) {
+    return;
+  }
+  fractals.lines.push_back(
+    line_t{
+      .begin = as_point2i_from_point2f(p1),
+      .end = as_point2i_from_point2f(p2)});
+  fractals.lines.push_back(
+    line_t{
+      .begin = as_point2i_from_point2f(p2),
+      .end = as_point2i_from_point2f(p3)});
+  fractals.lines.push_back(
+    line_t{
+      .begin = as_point2i_from_point2f(p3),
+      .end = as_point2i_from_point2f(p1)});
+
+  const auto midpoint_p1p2 = midpoint(p1, p2);
+  const auto midpoint_p2p3 = midpoint(p2, p3);
+  const auto midpoint_p3p1 = midpoint(p3, p1);
+
+  draw_triangle(fractals, p1, midpoint_p1p2, midpoint_p3p1);
+  draw_triangle(fractals, midpoint_p1p2, p2, midpoint_p2p3);
+  draw_triangle(fractals, midpoint_p3p1, midpoint_p2p3, p3);
+}
+
 void turtle_forward(turtle_t& turtle, const int distance) {
   turtle.position = as_point2f_add_vec2f(
     turtle.position,
@@ -72,16 +109,22 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 
   fractals_t* fractals = new fractals_t();
 
-  turtle_t turtle;
-  for (int i = 0; i < 360; i++) {
-    const auto turtle_last_position = turtle.position;
-    turtle_forward(turtle, i);
-    turtle_left(turtle, 59.0f);
-    fractals->lines.push_back(
-      line_t{
-        .begin = as_point2i_from_point2f(turtle_last_position),
-        .end = as_point2i_from_point2f(turtle.position)});
-  }
+  // turtle_t turtle;
+  // create spiral
+  // for (int i = 0; i < 360; i++) {
+  //   const auto turtle_last_position = turtle.position;
+  //   turtle_forward(turtle, i);
+  //   turtle_left(turtle, 59.0f);
+  //   fractals->lines.push_back(
+  //     line_t{
+  //       .begin = as_point2i_from_point2f(turtle_last_position),
+  //       .end = as_point2i_from_point2f(turtle.position)});
+  // }
+
+  // Sierpinski triangle
+  draw_triangle(
+    *fractals, as_point2f{-300, 250}, as_point2f{0, -250},
+    as_point2f{300, 250});
 
   *appstate = fractals;
 

@@ -31,7 +31,8 @@ enum class mode_e {
   spiral,
   sierpinski_triangle,
   sierpinski_carpet,
-  fractal_tree
+  tree,
+  snowflake
 };
 
 struct fractals_t {
@@ -39,7 +40,8 @@ struct fractals_t {
   std::vector<line_t> triangles;
   std::vector<line_t> branches;
   std::vector<box_t> boxes;
-  mode_e mode = mode_e::spiral;
+  std::vector<line_t> snowflake;
+  mode_e mode = mode_e::snowflake;
 };
 
 struct turtle_t {
@@ -190,6 +192,51 @@ void draw_branch(
     length - decrease_distribution(gen));
 }
 
+void draw_koch_curve(
+  fractals_t& fractals, const as_point2f& position, const as_vec2f& heading,
+  const float length) {
+  if (length < 1) {
+    // base case
+    return;
+  } else {
+    fractals.snowflake.push_back(
+      line_t{
+        .begin = position,
+        .end =
+          as_point2f_add_vec2f(position, as_vec2f_mul_float(heading, length))});
+    const as_point2f left_position = as_point2f_add_vec2f(
+      position, as_vec2f_mul_float(heading, length / 3.0f));
+    const as_vec2f left_heading = as_mat22f_mul_vec2f_v(
+      as_mat22f_rotation(as_radians_from_degrees(60.0f)), heading);
+    draw_koch_curve(fractals, position, heading, length / 3.0f);
+    draw_koch_curve(fractals, left_position, left_heading, length / 3.0f);
+    const as_point2f right_position = as_point2f_add_vec2f(
+      left_position, as_vec2f_mul_float(left_heading, length / 3.0f));
+    const as_vec2f right_heading = as_mat22f_mul_vec2f_v(
+      as_mat22f_rotation(as_radians_from_degrees(-120.0f)), left_heading);
+    draw_koch_curve(
+      fractals,
+      as_point2f_add_vec2f(
+        position, as_vec2f_mul_float(heading, 2.0f * (length / 3.0f))),
+      heading, length / 3.0f);
+    draw_koch_curve(fractals, right_position, right_heading, length / 3.0f);
+  }
+}
+
+void draw_koch_snowflake(
+  fractals_t& fractals, const as_point2f& position, const float length) {
+  as_vec2f heading = {.x = 1.0f};
+  as_point2f curve_start = position;
+  float heading_degrees = -120.0f;
+  for (int i = 0; i < 3; i++) {
+    draw_koch_curve(fractals, curve_start, heading, length);
+    curve_start =
+      as_point2f_add_vec2f(curve_start, as_vec2f_mul_float(heading, length));
+    heading = as_mat22f_mul_vec2f_v(
+      as_mat22f_rotation(as_radians_from_degrees(heading_degrees)), heading);
+  }
+}
+
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   SDL_SetAppMetadata("Fractals", "1.0", "com.tomhultonharrop.fractals");
 
@@ -231,6 +278,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 
   // fractal tree
   draw_branch(*fractals, as_point2f{.x = 0, .y = 200}, 0.0f, 90.0f);
+
+  // Koch snowflake
+  draw_koch_snowflake(*fractals, as_point2f{-200.0f, 150.0f}, 400.0f);
 
   *appstate = fractals;
 
@@ -283,8 +333,11 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
         }
       }
     } break;
-    case mode_e::fractal_tree: {
+    case mode_e::tree: {
       draw_lines(fractals->branches);
+    } break;
+    case mode_e::snowflake: {
+      draw_lines(fractals->snowflake);
     } break;
   }
 
@@ -303,7 +356,9 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
     } else if (event->key.scancode == SDL_SCANCODE_3) {
       fractals->mode = mode_e::sierpinski_carpet;
     } else if (event->key.scancode == SDL_SCANCODE_4) {
-      fractals->mode = mode_e::fractal_tree;
+      fractals->mode = mode_e::tree;
+    } else if (event->key.scancode == SDL_SCANCODE_5) {
+      fractals->mode = mode_e::snowflake;
     }
   }
   if (event->type == SDL_EVENT_QUIT) {

@@ -27,10 +27,19 @@ struct box_t {
   as_vec2f wh;
 };
 
+enum class mode_e {
+  spiral,
+  sierpinski_triangle,
+  sierpinski_carpet,
+  fractal_tree
+};
+
 struct fractals_t {
-  as_mat44f mvp;
-  std::vector<line_t> lines;
+  std::vector<line_t> spiral;
+  std::vector<line_t> triangles;
+  std::vector<line_t> branches;
   std::vector<box_t> boxes;
+  mode_e mode = mode_e::spiral;
 };
 
 struct turtle_t {
@@ -45,6 +54,7 @@ as_vec2f as_mat22f_mul_vec2f(const as_mat22f* const mat, const as_vec2f vec) {
                     .y = mat->elem[2] * vec.x + mat->elem[3] * vec.y};
 }
 
+// todo - move to as-c-math library...s
 as_vec2f as_mat22f_mul_vec2f_v(as_mat22f mat, const as_vec2f vec) {
   return as_mat22f_mul_vec2f(&mat, vec);
 }
@@ -64,9 +74,9 @@ void draw_triangle(
   if (triangle_too_small(p1, p2)) {
     return;
   }
-  fractals.lines.push_back(line_t{.begin = p1, .end = p2});
-  fractals.lines.push_back(line_t{.begin = p2, .end = p3});
-  fractals.lines.push_back(line_t{.begin = p3, .end = p1});
+  fractals.triangles.push_back(line_t{.begin = p1, .end = p2});
+  fractals.triangles.push_back(line_t{.begin = p2, .end = p3});
+  fractals.triangles.push_back(line_t{.begin = p3, .end = p1});
 
   const auto midpoint_p1p2 = midpoint(p1, p2);
   const auto midpoint_p2p3 = midpoint(p2, p3);
@@ -164,7 +174,7 @@ void draw_branch(
   const as_point2f finish =
     as_point2f_add_vec2f(start, as_vec2f_mul_float(heading, length));
 
-  fractals.lines.push_back(line_t{.begin = start, .end = finish});
+  fractals.branches.push_back(line_t{.begin = start, .end = finish});
 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -199,27 +209,25 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 
   fractals_t* fractals = new fractals_t();
 
-  // turtle_t turtle;
+  turtle_t turtle;
   // create spiral
-  // for (int i = 0; i < 360; i++) {
-  //   const auto turtle_last_position = turtle.position;
-  //   turtle_forward(turtle, i);
-  //   turtle_left(turtle, 59.0f);
-  //   fractals->lines.push_back(
-  //     line_t{
-  //       .begin = as_point2i_from_point2f(turtle_last_position),
-  //       .end = as_point2i_from_point2f(turtle.position)});
-  // }
+  for (int i = 0; i < 360; i++) {
+    const auto turtle_last_position = turtle.position;
+    turtle_forward(turtle, i);
+    turtle_left(turtle, 59.0f);
+    fractals->spiral.push_back(
+      line_t{.begin = turtle_last_position, .end = turtle.position});
+  }
 
   // Sierpinski triangle
-  // draw_triangle(
-  //   *fractals, as_point2f{-300, 250}, as_point2f{0, -250},
-  //   as_point2f{300, 250});
+  draw_triangle(
+    *fractals, as_point2f{-300, 250}, as_point2f{0, -250},
+    as_point2f{300, 250});
 
   // Sierpinski carpet
-  // draw_carpet(
-  //   *fractals,
-  //   box_t{.xy = as_point2f(100.0f, 100.0f), .wh = as_vec2f(600.0f, 400.0f)});
+  draw_carpet(
+    *fractals,
+    box_t{.xy = as_point2f(100.0f, 100.0f), .wh = as_vec2f(600.0f, 400.0f)});
 
   // fractal tree
   draw_branch(*fractals, as_point2f{.x = 0, .y = 200}, 0.0f, 90.0f);
@@ -242,26 +250,42 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
   SDL_RenderClear(g_renderer);
 
   SDL_SetRenderDrawColor(g_renderer, 39, 61, 113, 255);
-  for (const auto line : fractals->lines) {
-    const auto offset =
-      as_vec2f{.x = g_window_width / 2, .y = g_window_height / 2};
-    auto begin = as_point2f_add_vec2f(line.begin, offset);
-    auto end = as_point2f_add_vec2f(line.end, offset);
-    SDL_RenderLine(g_renderer, begin.x, begin.y, end.x, end.y);
-  }
 
-  if (!fractals->boxes.empty()) {
-    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
-    const auto box = fractals->boxes[0];
-    SDL_FRect rect =
-      SDL_FRect{.x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
-    SDL_RenderFillRect(g_renderer, &rect);
-    SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
-    for (const auto box : fractals->boxes | std::views::drop(1)) {
-      SDL_FRect rect =
-        SDL_FRect{.x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
-      SDL_RenderFillRect(g_renderer, &rect);
+  const auto draw_lines = [](const std::vector<line_t>& lines) {
+    for (const auto line : lines) {
+      const auto offset =
+        as_vec2f{.x = g_window_width / 2, .y = g_window_height / 2};
+      auto begin = as_point2f_add_vec2f(line.begin, offset);
+      auto end = as_point2f_add_vec2f(line.end, offset);
+      SDL_RenderLine(g_renderer, begin.x, begin.y, end.x, end.y);
     }
+  };
+
+  switch (fractals->mode) {
+    case mode_e::spiral: {
+      draw_lines(fractals->spiral);
+    } break;
+    case mode_e::sierpinski_triangle: {
+      draw_lines(fractals->triangles);
+    } break;
+    case mode_e::sierpinski_carpet: {
+      if (!fractals->boxes.empty()) {
+        SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+        const auto box = fractals->boxes[0];
+        SDL_FRect rect =
+          SDL_FRect{.x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
+        SDL_RenderFillRect(g_renderer, &rect);
+        SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
+        for (const auto box : fractals->boxes | std::views::drop(1)) {
+          SDL_FRect rect = SDL_FRect{
+            .x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
+          SDL_RenderFillRect(g_renderer, &rect);
+        }
+      }
+    } break;
+    case mode_e::fractal_tree: {
+      draw_lines(fractals->branches);
+    } break;
   }
 
   SDL_RenderPresent(g_renderer);
@@ -270,6 +294,18 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
 }
 
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
+  fractals_t* fractals = (fractals_t*)(appstate);
+  if (event->type == SDL_EVENT_KEY_DOWN) {
+    if (event->key.scancode == SDL_SCANCODE_1) {
+      fractals->mode = mode_e::spiral;
+    } else if (event->key.scancode == SDL_SCANCODE_2) {
+      fractals->mode = mode_e::sierpinski_triangle;
+    } else if (event->key.scancode == SDL_SCANCODE_3) {
+      fractals->mode = mode_e::sierpinski_carpet;
+    } else if (event->key.scancode == SDL_SCANCODE_4) {
+      fractals->mode = mode_e::fractal_tree;
+    }
+  }
   if (event->type == SDL_EVENT_QUIT) {
     return SDL_APP_SUCCESS;
   }

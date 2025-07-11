@@ -32,7 +32,8 @@ enum class mode_e {
   sierpinski_triangle,
   sierpinski_carpet,
   tree,
-  snowflake
+  snowflake,
+  hilbert,
 };
 
 struct fractals_t {
@@ -41,7 +42,8 @@ struct fractals_t {
   std::vector<line_t> branches;
   std::vector<box_t> boxes;
   std::vector<line_t> snowflake;
-  mode_e mode = mode_e::snowflake;
+  std::vector<line_t> hilbert;
+  mode_e mode = mode_e::hilbert;
 };
 
 struct turtle_t {
@@ -93,6 +95,15 @@ void turtle_forward(turtle_t& turtle, const int distance) {
   turtle.position = as_point2f_add_vec2f(
     turtle.position,
     as_vec2f_mul_float(turtle.heading, turtle.scale * distance));
+}
+
+void turtle_forward(
+  turtle_t& turtle, const int distance, fractals_t& fractals) {
+  const auto previous_position = turtle.position;
+  turtle_forward(turtle, distance);
+  const auto next_position = turtle.position;
+  fractals.hilbert.push_back(
+    line_t{.begin = previous_position, .end = next_position});
 }
 
 void turtle_left(turtle_t& turtle, const float degrees) {
@@ -192,6 +203,7 @@ void draw_branch(
     length - decrease_distribution(gen));
 }
 
+// doesn't handle removing previous line
 void draw_koch_curve(
   fractals_t& fractals, const as_point2f& position, const as_vec2f& heading,
   const float length) {
@@ -237,6 +249,40 @@ void draw_koch_snowflake(
   }
 }
 
+void hilbert_curve_quadrant(
+  const int level, const float angle, const float line_length, turtle_t& turtle,
+  fractals_t& fractals) {
+  if (level == 0) {
+    return;
+  }
+  turtle_right(turtle, angle);
+  hilbert_curve_quadrant(level - 1, -angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals);
+  turtle_left(turtle, angle);
+  hilbert_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals);
+  hilbert_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
+  turtle_left(turtle, angle);
+  turtle_forward(turtle, line_length, fractals);
+  hilbert_curve_quadrant(level - 1, -angle, line_length, turtle, fractals);
+  turtle_right(turtle, angle);
+}
+
+void hilbert_curve(
+  fractals_t& fractals, turtle_t& turtle, const float line_length,
+  const int levels) {
+  const float angle = 90.0f;
+  hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals);
+  hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
+  turtle_left(turtle, angle);
+  turtle_forward(turtle, line_length, fractals);
+  turtle_left(turtle, angle);
+  hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals);
+  hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
+}
+
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   SDL_SetAppMetadata("Fractals", "1.0", "com.tomhultonharrop.fractals");
 
@@ -256,14 +302,16 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 
   fractals_t* fractals = new fractals_t();
 
-  turtle_t turtle;
-  // create spiral
-  for (int i = 0; i < 360; i++) {
-    const auto turtle_last_position = turtle.position;
-    turtle_forward(turtle, i);
-    turtle_left(turtle, 59.0f);
-    fractals->spiral.push_back(
-      line_t{.begin = turtle_last_position, .end = turtle.position});
+  {
+    turtle_t turtle;
+    // create spiral
+    for (int i = 0; i < 360; i++) {
+      const auto turtle_last_position = turtle.position;
+      turtle_forward(turtle, i);
+      turtle_left(turtle, 59.0f);
+      fractals->spiral.push_back(
+        line_t{.begin = turtle_last_position, .end = turtle.position});
+    }
   }
 
   // Sierpinski triangle
@@ -280,7 +328,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   draw_branch(*fractals, as_point2f{.x = 0, .y = 200}, 0.0f, 90.0f);
 
   // Koch snowflake
-  draw_koch_snowflake(*fractals, as_point2f{-200.0f, 150.0f}, 400.0f);
+  draw_koch_snowflake(*fractals, as_point2f{-200.0f, 125.0f}, 400.0f);
+
+  // Hilbert curve
+  turtle_t turtle = {.position = as_point2f{.x = -250.0f, .y = 0.0f}};
+  hilbert_curve(*fractals, turtle, 5.0f, 6);
 
   *appstate = fractals;
 
@@ -339,6 +391,9 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
     case mode_e::snowflake: {
       draw_lines(fractals->snowflake);
     } break;
+    case mode_e::hilbert: {
+      draw_lines(fractals->hilbert);
+    } break;
   }
 
   SDL_RenderPresent(g_renderer);
@@ -359,6 +414,8 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
       fractals->mode = mode_e::tree;
     } else if (event->key.scancode == SDL_SCANCODE_5) {
       fractals->mode = mode_e::snowflake;
+    } else if (event->key.scancode == SDL_SCANCODE_6) {
+      fractals->mode = mode_e::hilbert;
     }
   }
   if (event->type == SDL_EVENT_QUIT) {

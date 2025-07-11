@@ -34,16 +34,18 @@ enum class mode_e {
   tree,
   snowflake,
   hilbert,
+  chequered_box,
 };
 
 struct fractals_t {
   std::vector<line_t> spiral;
   std::vector<line_t> triangles;
   std::vector<line_t> branches;
-  std::vector<box_t> boxes;
+  std::vector<box_t> carpet;
   std::vector<line_t> snowflake;
   std::vector<line_t> hilbert;
-  mode_e mode = mode_e::hilbert;
+  std::vector<box_t> chequered_box;
+  mode_e mode = mode_e::chequered_box;
 };
 
 struct turtle_t {
@@ -120,10 +122,6 @@ bool box_too_small(const box_t& box) {
   return box.wh.y < 2.0f;
 }
 
-void add_box(fractals_t& fractals, const box_t& box) {
-  fractals.boxes.push_back(box);
-}
-
 void draw_inner_rectangle(fractals_t& fractals, const box_t& box) {
   if (box_too_small(box)) {
     return;
@@ -133,7 +131,7 @@ void draw_inner_rectangle(fractals_t& fractals, const box_t& box) {
   const float two_thirds_width = one_third_width * 2.0f;
   const float two_thirds_height = one_third_height * 2.0f;
 
-  fractals.boxes.push_back(
+  fractals.carpet.push_back(
     {.xy = as_point2f(box.xy.x + one_third_width, box.xy.y + one_third_height),
      .wh = as_vec2f(one_third_width, one_third_height)});
 
@@ -172,7 +170,7 @@ void draw_inner_rectangle(fractals_t& fractals, const box_t& box) {
 }
 
 void draw_carpet(fractals_t& fractals, const box_t& box) {
-  fractals.boxes.push_back(box);
+  fractals.carpet.push_back(box);
   draw_inner_rectangle(fractals, box);
 }
 
@@ -283,6 +281,62 @@ void hilbert_curve(
   hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
 }
 
+void draw_inner_box(fractals_t& fractals, const box_t& box, int level) {
+  if (level == 0) {
+    return;
+  }
+  const float one_third_width = box.wh.x / 3.0f;
+  const float one_third_height = box.wh.y / 3.0f;
+  const float two_thirds_width = one_third_width * 2.0f;
+  const float two_thirds_height = one_third_height * 2.0f;
+
+  fractals.chequered_box.push_back(
+    {.xy = as_point2f(box.xy.x + one_third_width, box.xy.y),
+     .wh = as_vec2f(one_third_width, one_third_height)});
+  fractals.chequered_box.push_back(
+    {.xy = as_point2f(box.xy.x, box.xy.y + one_third_height),
+     .wh = as_vec2f(one_third_width, one_third_height)});
+  fractals.chequered_box.push_back(
+    {.xy = as_point2f(box.xy.x + two_thirds_width, box.xy.y + one_third_height),
+     .wh = as_vec2f(one_third_width, one_third_height)});
+  fractals.chequered_box.push_back(
+    {.xy = as_point2f(box.xy.x + one_third_width, box.xy.y + two_thirds_height),
+     .wh = as_vec2f(one_third_width, one_third_height)});
+
+  draw_inner_box(
+    fractals,
+    {.xy = as_point2f(box.xy.x, box.xy.y),
+     as_vec2f(one_third_width, one_third_height)},
+    level - 1);
+  draw_inner_box(
+    fractals,
+    {.xy = as_point2f(box.xy.x + two_thirds_width, box.xy.y),
+     as_vec2f(one_third_width, one_third_height)},
+    level - 1);
+  draw_inner_box(
+    fractals,
+    {.xy = as_point2f(box.xy.x + one_third_width, box.xy.y + one_third_height),
+     as_vec2f(one_third_width, one_third_height)},
+    level - 1);
+  draw_inner_box(
+    fractals,
+    {.xy = as_point2f(box.xy.x, box.xy.y + two_thirds_height),
+     as_vec2f(one_third_width, one_third_height)},
+    level - 1);
+  draw_inner_box(
+    fractals,
+    {.xy =
+       as_point2f(box.xy.x + two_thirds_width, box.xy.y + two_thirds_height),
+     as_vec2f(one_third_width, one_third_height)},
+    level - 1);
+}
+
+void draw_chequered_box(
+  fractals_t& fractals, const box_t& box, const int levels) {
+  fractals.chequered_box.push_back(box);
+  draw_inner_box(fractals, box, levels);
+}
+
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   SDL_SetAppMetadata("Fractals", "1.0", "com.tomhultonharrop.fractals");
 
@@ -334,6 +388,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   turtle_t turtle = {.position = as_point2f{.x = -250.0f, .y = 0.0f}};
   hilbert_curve(*fractals, turtle, 5.0f, 6);
 
+  // recursive chequered box pattern
+  draw_chequered_box(
+    *fractals,
+    box_t{.xy = as_point2f(200.0f, 100.0f), .wh = as_vec2f(400.0f, 400.0f)}, 4);
+
   *appstate = fractals;
 
   return SDL_APP_CONTINUE;
@@ -363,6 +422,23 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
     }
   };
 
+  const auto draw_boxes = [](const std::vector<box_t>& boxes) {
+    if (boxes.empty()) {
+      return;
+    }
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+    const auto box = boxes[0];
+    SDL_FRect rect =
+      SDL_FRect{.x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
+    SDL_RenderFillRect(g_renderer, &rect);
+    SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
+    for (const auto box : boxes | std::views::drop(1)) {
+      SDL_FRect rect =
+        SDL_FRect{.x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
+      SDL_RenderFillRect(g_renderer, &rect);
+    }
+  };
+
   switch (fractals->mode) {
     case mode_e::spiral: {
       draw_lines(fractals->spiral);
@@ -371,19 +447,7 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
       draw_lines(fractals->triangles);
     } break;
     case mode_e::sierpinski_carpet: {
-      if (!fractals->boxes.empty()) {
-        SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
-        const auto box = fractals->boxes[0];
-        SDL_FRect rect =
-          SDL_FRect{.x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
-        SDL_RenderFillRect(g_renderer, &rect);
-        SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
-        for (const auto box : fractals->boxes | std::views::drop(1)) {
-          SDL_FRect rect = SDL_FRect{
-            .x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
-          SDL_RenderFillRect(g_renderer, &rect);
-        }
-      }
+      draw_boxes(fractals->carpet);
     } break;
     case mode_e::tree: {
       draw_lines(fractals->branches);
@@ -394,6 +458,9 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
     case mode_e::hilbert: {
       draw_lines(fractals->hilbert);
     } break;
+    case mode_e::chequered_box: {
+      draw_boxes(fractals->chequered_box);
+    }
   }
 
   SDL_RenderPresent(g_renderer);
@@ -416,6 +483,8 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
       fractals->mode = mode_e::snowflake;
     } else if (event->key.scancode == SDL_SCANCODE_6) {
       fractals->mode = mode_e::hilbert;
+    } else if (event->key.scancode == SDL_SCANCODE_7) {
+      fractals->mode = mode_e::chequered_box;
     }
   }
   if (event->type == SDL_EVENT_QUIT) {

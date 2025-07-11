@@ -6,6 +6,7 @@
 
 #include <format>
 #include <iostream>
+#include <random>
 #include <ranges>
 #include <stack>
 
@@ -42,6 +43,10 @@ struct turtle_t {
 as_vec2f as_mat22f_mul_vec2f(const as_mat22f* const mat, const as_vec2f vec) {
   return (as_vec2f){.x = mat->elem[0] * vec.x + mat->elem[1] * vec.y,
                     .y = mat->elem[2] * vec.x + mat->elem[3] * vec.y};
+}
+
+as_vec2f as_mat22f_mul_vec2f_v(as_mat22f mat, const as_vec2f vec) {
+  return as_mat22f_mul_vec2f(&mat, vec);
 }
 
 as_point2f midpoint(const as_point2f& begin, const as_point2f& end) {
@@ -148,6 +153,33 @@ void draw_carpet(fractals_t& fractals, const box_t& box) {
   draw_inner_rectangle(fractals, box);
 }
 
+void draw_branch(
+  fractals_t& fractals, const as_point2f& start, const float angle,
+  const float length) {
+  if (length < 5) {
+    return;
+  }
+  const as_vec2f heading = as_mat22f_mul_vec2f_v(
+    as_mat22f_rotation(as_radians_from_degrees(angle)), as_vec2f{.y = -1.0f});
+  const as_point2f finish =
+    as_point2f_add_vec2f(start, as_vec2f_mul_float(heading, length));
+
+  fractals.lines.push_back(line_t{.begin = start, .end = finish});
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
+  std::uniform_real_distribution<> angle_distribution(10.0f, 30.0f);
+  std::uniform_real_distribution<> decrease_distribution(8.0f, 15.0f);
+
+  draw_branch(
+    fractals, finish, angle - angle_distribution(gen),
+    length - decrease_distribution(gen));
+  draw_branch(
+    fractals, finish, angle + angle_distribution(gen),
+    length - decrease_distribution(gen));
+}
+
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   SDL_SetAppMetadata("Fractals", "1.0", "com.tomhultonharrop.fractals");
 
@@ -185,9 +217,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   //   as_point2f{300, 250});
 
   // Sierpinski carpet
-  draw_carpet(
-    *fractals,
-    box_t{.xy = as_point2f(100.0f, 100.0f), .wh = as_vec2f(600.0f, 400.0f)});
+  // draw_carpet(
+  //   *fractals,
+  //   box_t{.xy = as_point2f(100.0f, 100.0f), .wh = as_vec2f(600.0f, 400.0f)});
+
+  // fractal tree
+  draw_branch(*fractals, as_point2f{.x = 0, .y = 200}, 0.0f, 90.0f);
 
   *appstate = fractals;
 

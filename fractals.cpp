@@ -6,6 +6,7 @@
 
 #include <format>
 #include <iostream>
+#include <ranges>
 #include <stack>
 
 static SDL_Window* g_window = nullptr;
@@ -16,13 +17,19 @@ const int g_window_width = 800;
 const int g_window_height = 600;
 
 struct line_t {
-  as_point2i begin;
-  as_point2i end;
+  as_point2f begin;
+  as_point2f end;
+};
+
+struct box_t {
+  as_point2f xy;
+  as_vec2f wh;
 };
 
 struct fractals_t {
   as_mat44f mvp;
   std::vector<line_t> lines;
+  std::vector<box_t> boxes;
 };
 
 struct turtle_t {
@@ -42,28 +49,19 @@ as_point2f midpoint(const as_point2f& begin, const as_point2f& end) {
     begin, as_vec2f_mul_float(as_point2f_sub_point2f(end, begin), 0.5f));
 }
 
-bool too_small(const as_point2f& p1, const as_point2f& p2) {
+bool triangle_too_small(const as_point2f& p1, const as_point2f& p2) {
   return as_vec2f_length(as_point2f_sub_point2f(p2, p1)) < 4.0f;
 }
 
 void draw_triangle(
   fractals_t& fractals, const as_point2f& p1, const as_point2f& p2,
   const as_point2f& p3) {
-  if (too_small(p1, p2)) {
+  if (triangle_too_small(p1, p2)) {
     return;
   }
-  fractals.lines.push_back(
-    line_t{
-      .begin = as_point2i_from_point2f(p1),
-      .end = as_point2i_from_point2f(p2)});
-  fractals.lines.push_back(
-    line_t{
-      .begin = as_point2i_from_point2f(p2),
-      .end = as_point2i_from_point2f(p3)});
-  fractals.lines.push_back(
-    line_t{
-      .begin = as_point2i_from_point2f(p3),
-      .end = as_point2i_from_point2f(p1)});
+  fractals.lines.push_back(line_t{.begin = p1, .end = p2});
+  fractals.lines.push_back(line_t{.begin = p2, .end = p3});
+  fractals.lines.push_back(line_t{.begin = p3, .end = p1});
 
   const auto midpoint_p1p2 = midpoint(p1, p2);
   const auto midpoint_p2p3 = midpoint(p2, p3);
@@ -88,6 +86,66 @@ void turtle_left(turtle_t& turtle, const float degrees) {
 void turtle_right(turtle_t& turtle, const float degrees) {
   as_mat22f rotation = as_mat22f_rotation(as_radians_from_degrees(degrees));
   turtle.heading = as_mat22f_mul_vec2f(&rotation, turtle.heading);
+}
+
+bool box_too_small(const box_t& box) {
+  return box.wh.y < 2.0f;
+}
+
+void add_box(fractals_t& fractals, const box_t& box) {
+  fractals.boxes.push_back(box);
+}
+
+void draw_inner_rectangle(fractals_t& fractals, const box_t& box) {
+  if (box_too_small(box)) {
+    return;
+  }
+  const float one_third_width = box.wh.x / 3.0f;
+  const float one_third_height = box.wh.y / 3.0f;
+  const float two_thirds_width = one_third_width * 2.0f;
+  const float two_thirds_height = one_third_height * 2.0f;
+
+  fractals.boxes.push_back(
+    {.xy = as_point2f(box.xy.x + one_third_width, box.xy.y + one_third_height),
+     .wh = as_vec2f(one_third_width, one_third_height)});
+
+  // top
+  draw_inner_rectangle(
+    fractals, {.xy = as_point2f(box.xy.x, box.xy.y),
+               as_vec2f(one_third_width, one_third_height)});
+  draw_inner_rectangle(
+    fractals, {.xy = as_point2f(box.xy.x + one_third_width, box.xy.y),
+               as_vec2f(one_third_width, one_third_height)});
+  draw_inner_rectangle(
+    fractals, {.xy = as_point2f(box.xy.x + two_thirds_width, box.xy.y),
+               as_vec2f(one_third_width, one_third_height)});
+
+  // middle
+  draw_inner_rectangle(
+    fractals, {.xy = as_point2f(box.xy.x, box.xy.y + one_third_height),
+               as_vec2f(one_third_width, one_third_height)});
+  draw_inner_rectangle(
+    fractals,
+    {.xy = as_point2f(box.xy.x + two_thirds_width, box.xy.y + one_third_height),
+     as_vec2f(one_third_width, one_third_height)});
+
+  // bottom
+  draw_inner_rectangle(
+    fractals, {.xy = as_point2f(box.xy.x, box.xy.y + two_thirds_height),
+               as_vec2f(one_third_width, one_third_height)});
+  draw_inner_rectangle(
+    fractals,
+    {.xy = as_point2f(box.xy.x + one_third_width, box.xy.y + two_thirds_height),
+     as_vec2f(one_third_width, one_third_height)});
+  draw_inner_rectangle(
+    fractals, {.xy = as_point2f(
+                 box.xy.x + two_thirds_width, box.xy.y + two_thirds_height),
+               as_vec2f(one_third_width, one_third_height)});
+}
+
+void draw_carpet(fractals_t& fractals, const box_t& box) {
+  fractals.boxes.push_back(box);
+  draw_inner_rectangle(fractals, box);
 }
 
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
@@ -122,9 +180,14 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   // }
 
   // Sierpinski triangle
-  draw_triangle(
-    *fractals, as_point2f{-300, 250}, as_point2f{0, -250},
-    as_point2f{300, 250});
+  // draw_triangle(
+  //   *fractals, as_point2f{-300, 250}, as_point2f{0, -250},
+  //   as_point2f{300, 250});
+
+  // Sierpinski carpet
+  draw_carpet(
+    *fractals,
+    box_t{.xy = as_point2f(100.0f, 100.0f), .wh = as_vec2f(600.0f, 400.0f)});
 
   *appstate = fractals;
 
@@ -146,10 +209,24 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
   SDL_SetRenderDrawColor(g_renderer, 39, 61, 113, 255);
   for (const auto line : fractals->lines) {
     const auto offset =
-      as_vec2i{.x = g_window_width / 2, .y = g_window_height / 2};
-    auto begin = as_point2i_add_vec2i(line.begin, offset);
-    auto end = as_point2i_add_vec2i(line.end, offset);
+      as_vec2f{.x = g_window_width / 2, .y = g_window_height / 2};
+    auto begin = as_point2f_add_vec2f(line.begin, offset);
+    auto end = as_point2f_add_vec2f(line.end, offset);
     SDL_RenderLine(g_renderer, begin.x, begin.y, end.x, end.y);
+  }
+
+  if (!fractals->boxes.empty()) {
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+    const auto box = fractals->boxes[0];
+    SDL_FRect rect =
+      SDL_FRect{.x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
+    SDL_RenderFillRect(g_renderer, &rect);
+    SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
+    for (const auto box : fractals->boxes | std::views::drop(1)) {
+      SDL_FRect rect =
+        SDL_FRect{.x = box.xy.x, .y = box.xy.y, .w = box.wh.x, .h = box.wh.y};
+      SDL_RenderFillRect(g_renderer, &rect);
+    }
   }
 
   SDL_RenderPresent(g_renderer);

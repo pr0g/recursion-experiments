@@ -1,17 +1,19 @@
 #include <format>
 #include <iostream>
+#include <stack>
 
 // head (element), tail (rest of array)
 
-int sum_array(std::vector<int> tail) {
+int sum_array_recursive_1(const std::vector<int>& tail) {
   if (tail.empty()) {
     return 0;
   }
-  return tail[0] + sum_array(std::vector(tail.begin() + 1, tail.end()));
+  return tail[0]
+       + sum_array_recursive_1(std::vector(tail.begin() + 1, tail.end()));
 }
 
 // use offset instead of making a copy
-int sum_array_2(const std::vector<int>& tail) {
+int sum_array_recursive_2(const std::vector<int>& tail) {
   const std::function<int(const std::vector<int>&, int)> sum =
     [&sum](const std::vector<int>& tail, int offset) {
       if (offset == tail.size()) {
@@ -24,7 +26,7 @@ int sum_array_2(const std::vector<int>& tail) {
 }
 
 // iterative recursive version
-int sum_array_3(const std::vector<int> tail) {
+int sum_array_iterative_recursive(const std::vector<int>& tail) {
   enum class return_address_e { before, recursive };
   struct frame_t {
     return_address_e return_address;
@@ -72,8 +74,11 @@ int sum_array_3(const std::vector<int> tail) {
 // 15
 
 int main(int argc, char** argv) {
-  std::cout << std::format("array total {}\n", sum_array({1, 2, 3, 4, 5, 6}));
-  std::cout << std::format("array total {}\n", sum_array_2({1, 2, 3, 4, 5, 6}));
-  std::cout << std::format("array total {}\n", sum_array_3({1, 2, 3, 4, 5, 6}));
+  std::cout << std::format(
+    "array total {}\n", sum_array_recursive_1({1, 2, 3, 4, 5, 6}));
+  std::cout << std::format(
+    "array total {}\n", sum_array_recursive_2({1, 2, 3, 4, 5, 6}));
+  std::cout << std::format(
+    "array total {}\n", sum_array_iterative_recursive({1, 2, 3, 4, 5, 6}));
   return 0;
 }

@@ -145,3 +145,7 @@ target_link_libraries(fractals PRIVATE SDL3::SDL3 as-c-math)
 add_executable(file-finder)
 target_sources(file-finder PRIVATE file-finder.cpp)
 target_compile_features(file-finder PRIVATE cxx_std_20)
+
+add_executable(maze-generator)
+target_sources(maze-generator PRIVATE maze-generator.cpp)
+target_compile_features(maze-generator PRIVATE cxx_std_20)

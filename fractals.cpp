@@ -58,17 +58,6 @@ struct turtle_t {
   float scale = 0.8f;
 };
 
-// todo - move to as-c-math library...
-as_vec2f as_mat22f_mul_vec2f(const as_mat22f* const mat, const as_vec2f vec) {
-  return (as_vec2f){.x = mat->elem[0] * vec.x + mat->elem[1] * vec.y,
-                    .y = mat->elem[2] * vec.x + mat->elem[3] * vec.y};
-}
-
-// todo - move to as-c-math library...s
-as_vec2f as_mat22f_mul_vec2f_v(as_mat22f mat, const as_vec2f vec) {
-  return as_mat22f_mul_vec2f(&mat, vec);
-}
-
 as_point2f midpoint(const as_point2f& begin, const as_point2f& end) {
   return as_point2f_add_vec2f(
     begin, as_vec2f_mul_float(as_point2f_sub_point2f(end, begin), 0.5f));
@@ -111,13 +100,13 @@ void turtle_forward(turtle_t& turtle, const int distance, lines_t& lines) {
 }
 
 void turtle_left(turtle_t& turtle, const float degrees) {
-  as_mat22f rotation = as_mat22f_rotation(as_radians_from_degrees(-degrees));
-  turtle.heading = as_mat22f_mul_vec2f(&rotation, turtle.heading);
+  turtle.heading = as_mat22f_mul_vec2f_v(
+    as_mat22f_rotation(as_radians_from_degrees(-degrees)), turtle.heading);
 }
 
 void turtle_right(turtle_t& turtle, const float degrees) {
-  as_mat22f rotation = as_mat22f_rotation(as_radians_from_degrees(degrees));
-  turtle.heading = as_mat22f_mul_vec2f(&rotation, turtle.heading);
+  turtle.heading = as_mat22f_mul_vec2f_v(
+    as_mat22f_rotation(as_radians_from_degrees(degrees)), turtle.heading);
 }
 
 bool box_too_small(const box_t& box) {

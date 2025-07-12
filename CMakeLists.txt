@@ -134,7 +134,7 @@ include(FetchContent)
 FetchContent_Declare(
   as-c-math
   GIT_REPOSITORY https://github.com/pr0g/as-c-math.git
-  GIT_TAG 338dd16a87a138f2fca0c955fd7dd91d25f9ffc2)
+  GIT_TAG 67671cee1db1e47534aa8ff8a0bb8567ffcf616b)
 FetchContent_MakeAvailable(as-c-math)
 
 add_executable(fractals)

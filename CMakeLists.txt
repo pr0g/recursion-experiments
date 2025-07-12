@@ -141,3 +141,7 @@ add_executable(fractals)
 target_sources(fractals PRIVATE fractals.cpp)
 target_compile_features(fractals PRIVATE cxx_std_20)
 target_link_libraries(fractals PRIVATE SDL3::SDL3 as-c-math)
+
+add_executable(file-finder)
+target_sources(file-finder PRIVATE file-finder.cpp)
+target_compile_features(file-finder PRIVATE cxx_std_20)

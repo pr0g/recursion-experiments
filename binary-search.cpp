@@ -100,7 +100,6 @@ std::optional<int> binary_search_iterative_recursive(
       if (needle == haystack[mid]) {
         return_value = mid;
         call_stack.pop();
-        continue;
       } else if (needle < haystack[mid]) {
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
@@ -128,6 +127,7 @@ std::optional<int> binary_search_iterative_recursive(
 int main(int argc, char** argv) {
   const int needle = 13;
   {
+    std::cout << "binary search recursive:\n";
     const auto found =
       binary_search_recursive(needle, {{1, 4, 8, 11, 13, 16, 19, 19}});
     std::cout << std::format(
@@ -136,6 +136,7 @@ int main(int argc, char** argv) {
   }
   std::cout << '\n';
   {
+    std::cout << "binary search iterative:\n";
     const auto found =
       binary_search_iterative(needle, {{1, 4, 8, 11, 13, 16, 19, 19}});
     std::cout << std::format(
@@ -144,6 +145,7 @@ int main(int argc, char** argv) {
   }
   std::cout << '\n';
   {
+    std::cout << "binary search iterative recursive:\n";
     const auto found = binary_search_iterative_recursive(
       needle, {{1, 4, 8, 11, 13, 16, 19, 19}});
     std::cout << std::format(
@@ -152,7 +154,7 @@ int main(int argc, char** argv) {
   }
 
   std::cout << '\n';
-  
+
   // already sorted...
   std::vector<int> values(10'000, 0);
   std::iota(values.begin(), values.end(), 1);

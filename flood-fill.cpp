@@ -63,7 +63,6 @@ void flood_fill_iterative_recursive(
         || top.col >= image[0].size() || image[top.row][top.col] != top.old_char
         || image[top.row][top.col] == top.new_char) {
         call_stack.pop();
-        continue;
       } else {
         image[top.row][top.col] = top.new_char;
         top.return_address = return_address_e::recursive_1;
@@ -116,6 +115,8 @@ int main(int argc, char** argv) {
       {".......#..#####.....###########......"},
       {".......####...#######................"}};
 
+    std::cout << "flood fill recursive:\n";
+
     display_image(image);
 
     flood_fill_recursive(image, 3, 3, 'o', '.');
@@ -136,6 +137,8 @@ int main(int argc, char** argv) {
       {"..######......................#......"},
       {".......#..#####.....###########......"},
       {".......####...#######................"}};
+
+    std::cout << "flood fill iterative recursive:\n";
 
     display_image(image);
 
@@ -158,6 +161,8 @@ int main(int argc, char** argv) {
       {".......#....#....#......############.....##.....#"},
       {".......######....#........................##....#"},
       {".................####........####..........######"}};
+
+    std::cout << "flood fill room check iterative recursive:\n";
 
     display_image(image);
     std::cout << '\n';

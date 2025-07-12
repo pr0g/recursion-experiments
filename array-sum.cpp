@@ -50,12 +50,10 @@ int sum_array_iterative_recursive(const std::vector<int>& tail) {
           frame_t{
             .return_address = return_address_e::before,
             .tail = std::vector(top.tail.begin() + 1, top.tail.end())});
-        continue;
       }
     } else if (top.return_address == return_address_e::recursive) {
-      return_value = call_stack.top().tail[0] + return_value;
+      return_value = top.tail[0] + return_value;
       call_stack.pop();
-      continue;
     }
   }
   return return_value;
@@ -74,11 +72,14 @@ int sum_array_iterative_recursive(const std::vector<int>& tail) {
 // 15
 
 int main(int argc, char** argv) {
+  std::cout << "array sum recursive 1:\n";
   std::cout << std::format(
-    "array total {}\n", sum_array_recursive_1({1, 2, 3, 4, 5, 6}));
+    "total: {}\n", sum_array_recursive_1({1, 2, 3, 4, 5, 6}));
+  std::cout << "array sum recursive 2:\n";
   std::cout << std::format(
-    "array total {}\n", sum_array_recursive_2({1, 2, 3, 4, 5, 6}));
+    "total: {}\n", sum_array_recursive_2({1, 2, 3, 4, 5, 6}));
+  std::cout << "array sum iterative recursive:\n";
   std::cout << std::format(
-    "array total {}\n", sum_array_iterative_recursive({1, 2, 3, 4, 5, 6}));
+    "total: {}\n", sum_array_iterative_recursive({1, 2, 3, 4, 5, 6}));
   return 0;
 }

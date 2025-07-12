@@ -116,7 +116,6 @@ void solve_towers_of_hanoi_iterative_recursive(
       if (top.number_of_disks == 1) {
         move_disk(towers, top.start_tower, top.end_tower);
         call_stack.pop();
-        continue;
       } else {
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
@@ -126,7 +125,6 @@ void solve_towers_of_hanoi_iterative_recursive(
             .start_tower = top.start_tower,
             .end_tower = top.temp_tower,
             .temp_tower = top.end_tower});
-        continue;
       }
     } else if (top.return_address == return_address_e::recursive_1) {
       move_disk(towers, top.start_tower, top.end_tower);
@@ -138,7 +136,6 @@ void solve_towers_of_hanoi_iterative_recursive(
           .start_tower = top.temp_tower,
           .end_tower = top.end_tower,
           .temp_tower = top.start_tower});
-      continue;
     } else if (top.return_address == return_address_e::recursive_2) {
       call_stack.pop();
     }
@@ -147,7 +144,7 @@ void solve_towers_of_hanoi_iterative_recursive(
 
 int main(int argc, char** argv) {
   {
-    std::cout << "recursive\n\n";
+    std::cout << "towers of hanoi recursive:\n\n";
 
     towers_t towers;
     tower_t a_tower;
@@ -176,7 +173,7 @@ int main(int argc, char** argv) {
   std::cout << "---\n\n";
 
   {
-    std::cout << "iterative\n\n";
+    std::cout << "towers of hanoi iterative recursive:\n\n";
 
     towers_t towers;
     tower_t a_tower;

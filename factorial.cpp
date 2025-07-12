@@ -39,29 +39,21 @@ int factorial_recursive_iterative(int n) {
 
   int return_value = -1;
   while (call_stack.size() > 0) {
-    // body of the factorial function
-    int n = call_stack.top().n;
-    return_address_e return_address = call_stack.top().return_address;
-
-    if (return_address == return_address_e::before) {
-      if (n <= 1) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      if (top.n <= 1) {
         return_value = 1;
         call_stack.pop();
-        continue;
       } else {
-        call_stack.top().return_address = return_address_e::recursive;
-        // call the factorial function
+        top.return_address = return_address_e::recursive;
         call_stack.push(
-          frame_t{.return_address = return_address_e::before, .n = n - 1});
-        continue;
+          frame_t{.return_address = return_address_e::before, .n = top.n - 1});
       }
-    } else if (return_address == return_address_e::recursive) {
-      return_value = n * return_value;
+    } else if (top.return_address == return_address_e::recursive) {
+      return_value = top.n * return_value;
       call_stack.pop();
-      continue;
     }
   }
-
   return return_value;
 }
 

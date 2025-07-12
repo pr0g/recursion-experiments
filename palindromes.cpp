@@ -37,26 +37,24 @@ bool palindrome_iterative_recursive(std::string_view phrase) {
       if (top.phrase.empty() || top.phrase.length() == 1) {
         return_value = true;
         call_stack.pop();
-        continue;
       } else {
         top.return_address = return_address_e::recursive;
         call_stack.push(
           frame_t{
             .phrase = top.phrase.substr(1, top.phrase.length() - 2),
             .return_address = return_address_e::before});
-        continue;
       }
     } else if (top.return_address == return_address_e::recursive) {
       const bool match = top.phrase[0] == top.phrase[top.phrase.length() - 1];
       return_value = match && return_value;
       call_stack.pop();
-      continue;
     }
   }
   return return_value;
 }
 
 int main(int argc, char** argv) {
+  std::cout << "palindromes recursive:\n";
   std::cout << std::format(
     "{} {} a palindrome\n", "tacocat",
     palindrome_recursive("tacocat") ? "is" : "is not");
@@ -69,7 +67,8 @@ int main(int argc, char** argv) {
   std::cout << std::format(
     "{} {} a palindrome\n", "amanaplanacanalpanama",
     palindrome_recursive("amanaplanacanalpanama") ? "is" : "is not");
-  std::cout << "---\n";
+  std::cout << '\n';
+  std::cout << "palindromes iterative:\n";
   std::cout << std::format(
     "{} {} a palindrome\n", "tacocat",
     palindrome_iterative("tacocat") ? "is" : "is not");
@@ -82,7 +81,8 @@ int main(int argc, char** argv) {
   std::cout << std::format(
     "{} {} a palindrome\n", "amanaplanacanalpanama",
     palindrome_iterative("amanaplanacanalpanama") ? "is" : "is not");
-  std::cout << "---\n";
+  std::cout << '\n';
+  std::cout << "palindromes iterative recursive:\n";
   std::cout << std::format(
     "{} {} a palindrome\n", "tacocat",
     palindrome_iterative_recursive("tacocat") ? "is" : "is not");

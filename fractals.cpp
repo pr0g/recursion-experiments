@@ -22,6 +22,8 @@ struct line_t {
   as_point2f end;
 };
 
+using lines_t = std::vector<line_t>;
+
 struct box_t {
   as_point2f xy;
   as_vec2f wh;
@@ -35,6 +37,7 @@ enum class mode_e {
   snowflake,
   hilbert,
   chequered_box,
+  peano,
 };
 
 struct fractals_t {
@@ -45,7 +48,8 @@ struct fractals_t {
   std::vector<line_t> snowflake;
   std::vector<line_t> hilbert;
   std::vector<box_t> chequered_box;
-  mode_e mode = mode_e::chequered_box;
+  std::vector<line_t> peano;
+  mode_e mode = mode_e::peano;
 };
 
 struct turtle_t {
@@ -99,13 +103,11 @@ void turtle_forward(turtle_t& turtle, const int distance) {
     as_vec2f_mul_float(turtle.heading, turtle.scale * distance));
 }
 
-void turtle_forward(
-  turtle_t& turtle, const int distance, fractals_t& fractals) {
+void turtle_forward(turtle_t& turtle, const int distance, lines_t& lines) {
   const auto previous_position = turtle.position;
   turtle_forward(turtle, distance);
   const auto next_position = turtle.position;
-  fractals.hilbert.push_back(
-    line_t{.begin = previous_position, .end = next_position});
+  lines.push_back(line_t{.begin = previous_position, .end = next_position});
 }
 
 void turtle_left(turtle_t& turtle, const float degrees) {
@@ -255,13 +257,13 @@ void hilbert_curve_quadrant(
   }
   turtle_right(turtle, angle);
   hilbert_curve_quadrant(level - 1, -angle, line_length, turtle, fractals);
-  turtle_forward(turtle, line_length, fractals);
+  turtle_forward(turtle, line_length, fractals.hilbert);
   turtle_left(turtle, angle);
   hilbert_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
-  turtle_forward(turtle, line_length, fractals);
+  turtle_forward(turtle, line_length, fractals.hilbert);
   hilbert_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
   turtle_left(turtle, angle);
-  turtle_forward(turtle, line_length, fractals);
+  turtle_forward(turtle, line_length, fractals.hilbert);
   hilbert_curve_quadrant(level - 1, -angle, line_length, turtle, fractals);
   turtle_right(turtle, angle);
 }
@@ -271,13 +273,13 @@ void hilbert_curve(
   const int levels) {
   const float angle = 90.0f;
   hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
-  turtle_forward(turtle, line_length, fractals);
+  turtle_forward(turtle, line_length, fractals.hilbert);
   hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
   turtle_left(turtle, angle);
-  turtle_forward(turtle, line_length, fractals);
+  turtle_forward(turtle, line_length, fractals.hilbert);
   turtle_left(turtle, angle);
   hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
-  turtle_forward(turtle, line_length, fractals);
+  turtle_forward(turtle, line_length, fractals.hilbert);
   hilbert_curve_quadrant(levels, angle, line_length, turtle, fractals);
 }
 
@@ -337,6 +339,42 @@ void draw_chequered_box(
   draw_inner_box(fractals, box, levels);
 }
 
+void peano_curve_quadrant(
+  const int level, const float angle, const float line_length, turtle_t& turtle,
+  fractals_t& fractals) {
+  if (level == 0) {
+    return;
+  }
+  peano_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals.peano);
+  peano_curve_quadrant(level - 1, -angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals.peano);
+  peano_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
+  turtle_right(turtle, angle);
+  turtle_forward(turtle, line_length, fractals.peano);
+  turtle_right(turtle, angle);
+  peano_curve_quadrant(level - 1, -angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals.peano);
+  peano_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals.peano);
+  peano_curve_quadrant(level - 1, -angle, line_length, turtle, fractals);
+  turtle_left(turtle, angle);
+  turtle_forward(turtle, line_length, fractals.peano);
+  turtle_left(turtle, angle);
+  peano_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals.peano);
+  peano_curve_quadrant(level - 1, -angle, line_length, turtle, fractals);
+  turtle_forward(turtle, line_length, fractals.peano);
+  peano_curve_quadrant(level - 1, angle, line_length, turtle, fractals);
+}
+
+void peano_curve(
+  fractals_t& fractals, turtle_t& turtle, const float line_length,
+  const int levels) {
+  const float angle = 90.0f;
+  peano_curve_quadrant(levels, angle, line_length, turtle, fractals);
+}
+
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   SDL_SetAppMetadata("Fractals", "1.0", "com.tomhultonharrop.fractals");
 
@@ -385,8 +423,18 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
   draw_koch_snowflake(*fractals, as_point2f{-200.0f, 125.0f}, 400.0f);
 
   // Hilbert curve
-  turtle_t turtle = {.position = as_point2f{.x = -250.0f, .y = 0.0f}};
-  hilbert_curve(*fractals, turtle, 5.0f, 6);
+  {
+    turtle_t turtle = {.position = as_point2f{.x = -250.0f, .y = 0.0f}};
+    hilbert_curve(*fractals, turtle, 5.0f, 6);
+  }
+
+  // Peano curve
+  {
+    turtle_t turtle = {
+      .position = as_point2f{.x = -250.0f, .y = 250.0f},
+      .heading = as_vec2f{.y = -1.0f}};
+    peano_curve(*fractals, turtle, 8.0f, 4);
+  }
 
   // recursive chequered box pattern
   draw_chequered_box(
@@ -460,7 +508,10 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
     } break;
     case mode_e::chequered_box: {
       draw_boxes(fractals->chequered_box);
-    }
+    } break;
+    case mode_e::peano: {
+      draw_lines(fractals->peano);
+    } break;
   }
 
   SDL_RenderPresent(g_renderer);
@@ -485,6 +536,8 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
       fractals->mode = mode_e::hilbert;
     } else if (event->key.scancode == SDL_SCANCODE_7) {
       fractals->mode = mode_e::chequered_box;
+    } else if (event->key.scancode == SDL_SCANCODE_8) {
+      fractals->mode = mode_e::peano;
     }
   }
   if (event->type == SDL_EVENT_QUIT) {

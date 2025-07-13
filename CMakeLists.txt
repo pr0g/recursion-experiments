@@ -149,3 +149,7 @@ target_compile_features(file-finder PRIVATE cxx_std_20)
 add_executable(maze-generator)
 target_sources(maze-generator PRIVATE maze-generator.cpp)
 target_compile_features(maze-generator PRIVATE cxx_std_20)
+
+add_executable(tile-solver)
+target_sources(tile-solver PRIVATE tile-solver.cpp)
+target_compile_features(tile-solver PRIVATE cxx_std_20)

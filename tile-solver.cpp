@@ -62,10 +62,9 @@ int find_blank_space(const board_t& board) {
   return std::distance(board.begin(), std::find(board.begin(), board.end(), 0));
 }
 
-void make_move(board_t& board, const move_e move) {
-  const int blank_tile = find_blank_space(board);
+int moving_tile(const int blank_tile, const move_e move) {
   const auto [row, col] = to_rc(blank_tile);
-  const int next_tile = [row, col, move] {
+  return [row, col, move] {
     switch (move) {
       case move_e::up:
         return from_rc(row + 1, col);
@@ -77,7 +76,18 @@ void make_move(board_t& board, const move_e move) {
         return from_rc(row, col - 1);
     }
   }();
-  std::swap(board[blank_tile], board[next_tile]);
+}
+
+void make_move(
+  board_t& board, const int blank_tile, const int tile_to_move,
+  const move_e move) {
+  std::swap(board[blank_tile], board[tile_to_move]);
+}
+
+void make_move(board_t& board, const move_e move) {
+  const int blank_tile = find_blank_space(board);
+  const int tile_to_move = moving_tile(blank_tile, move);
+  return make_move(board, blank_tile, tile_to_move, move);
 }
 
 void undo_move(board_t& board, const move_e move) {
@@ -163,8 +173,11 @@ bool solve(board_t& board, const board_t& solved_board, int max_moves) {
     display_board(board);
     std::cout << '\n';
     for (const auto move : solution_moves) {
-      std::cout << std::format("move {}\n\n", move_to_string(move));
-      make_move(board, move);
+      const int blank_tile = find_blank_space(board);
+      const int tile_to_move = moving_tile(blank_tile, move);
+      std::cout << std::format(
+        "move {} {}\n\n", board[tile_to_move], move_to_string(move));
+      make_move(board, blank_tile, tile_to_move, move);
       display_board(board);
       std::cout << '\n';
     }

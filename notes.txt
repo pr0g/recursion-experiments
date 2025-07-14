@@ -2,9 +2,9 @@
 // 2. What argument is passed to the recursive function call?
 // 3. How does the argument become closer to the base case?
 
-when converting recursive to iterative with explicit stack, only include function parameter (and return_address_e) in the frame_t object
-  remove as many local variables as possible to make this clearer (e.g. 'head' with 'head'/'tail' array sum)
-
 Insights
 
-1. When passing state down to arguments, do not mutate variable at the current callstack level (that will be changed after the recursive function called returns)
+1. Always include function parameters and return address in frame object when using an explicit stack
+  a. Any state that is 'shared' across a call to a recursive function, needs to be moved to the frame object
+2. When passing state down to arguments, do not mutate variable at the current callstack level (that will be changed after the recursive function called returns)
+3. When porting a for loop calling a recursive function, the logic at the start of the loop, before the recursive call, needs to happen after the end of the for loop (essentially 'unwrap' the loop)

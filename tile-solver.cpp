@@ -36,6 +36,10 @@ struct coord_t {
 
 using board_t = std::vector<int>;
 
+using attempt_move_fn = std::function<bool(
+  board_t&, const board_t&, std::vector<move_e>&, int,
+  const std::optional<move_e>)>;
+
 int from_rc(int r, int c) {
   return r * g_board_dim + c;
 }
@@ -140,7 +144,7 @@ void generate_new_puzzle(board_t& board) {
   }
 }
 
-bool attempt_move(
+bool attempt_move_recursive(
   board_t& board, const board_t& solved_board, std::vector<move_e>& moves_made,
   const int moves_remaining,
   const std::optional<move_e> previous_move = std::nullopt) {
@@ -153,7 +157,7 @@ bool attempt_move(
   for (const auto move : find_valid_moves(board, previous_move)) {
     make_move(board, move);
     moves_made.push_back(move);
-    if (attempt_move(
+    if (attempt_move_recursive(
           board, solved_board, moves_made, moves_remaining - 1, move)) {
       undo_move(board, move);
       return true;
@@ -164,10 +168,119 @@ bool attempt_move(
   return false;
 }
 
-bool solve(board_t& board, const board_t& solved_board, int max_moves) {
+// extract some inline calls to help with porting iterative version
+bool attempt_move_recursive2(
+  board_t& board, const board_t& solved_board, std::vector<move_e>& moves_made,
+  const int moves_remaining,
+  const std::optional<move_e> previous_move = std::nullopt) {
+  if (moves_remaining < 0) {
+    return false;
+  }
+  if (board == solved_board) {
+    return true;
+  }
+  const auto valid_moves = find_valid_moves(board, previous_move);
+  for (const auto move : valid_moves) {
+    make_move(board, move);
+    moves_made.push_back(move);
+    const auto moved = attempt_move_recursive(
+      board, solved_board, moves_made, moves_remaining - 1, move);
+    if (moved) {
+      undo_move(board, move);
+      return true;
+    }
+    undo_move(board, move);
+    moves_made.pop_back();
+  }
+  return false;
+}
+
+bool attempt_move_iterative_recursive(
+  board_t& board, const board_t& solved_board, std::vector<move_e>& moves_made,
+  const int moves_remaining,
+  const std::optional<move_e> previous_move = std::nullopt) {
+  enum class return_address_e { before, recursive };
+  struct frame_t {
+    return_address_e return_address;
+    std::vector<move_e> valid_moves;
+    std::optional<move_e> previous_move = std::nullopt;
+    int moves_remaining;
+    bool moved;
+    int i;
+  };
+  std::stack<frame_t> call_stack;
+  call_stack.push(
+    frame_t{
+      .return_address = return_address_e::before,
+      .moves_remaining = moves_remaining});
+  bool return_value = false;
+  while (!call_stack.empty()) {
+    auto& top = call_stack.top();
+    if (top.return_address == return_address_e::before) {
+      if (top.moves_remaining < 0) {
+        return_value = false;
+        call_stack.pop();
+        continue;
+      }
+      if (board == solved_board) {
+        return_value = true;
+        call_stack.pop();
+        continue;
+      }
+      const auto valid_moves = find_valid_moves(board, top.previous_move);
+      if (!valid_moves.empty()) {
+        top.return_address = return_address_e::recursive;
+        top.valid_moves = std::move(valid_moves);
+        top.i = 0;
+        const auto move = top.valid_moves[top.i];
+        make_move(board, move);
+        moves_made.push_back(move);
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .moves_remaining = top.moves_remaining - 1,
+            .previous_move = move});
+        continue;
+      }
+      call_stack.pop();
+    } else if (top.return_address == return_address_e::recursive) {
+      top.moved = return_value;
+      if (top.moved) {
+        undo_move(board, top.valid_moves[top.i]);
+        return_value = true;
+        call_stack.pop();
+        continue;
+      }
+      undo_move(board, top.valid_moves[top.i]);
+      moves_made.pop_back();
+      // top of the for loop from recursive version
+      top.i++;
+      if (top.i < top.valid_moves.size()) {
+        const auto move = top.valid_moves[top.i];
+        make_move(board, move);
+        moves_made.push_back(move);
+        // make recursive call again from 'inside' the loop
+        call_stack.push(
+          frame_t{
+            .return_address = return_address_e::before,
+            .moves_remaining = top.moves_remaining - 1,
+            .previous_move = move});
+      } else {
+        return_value = false;
+        call_stack.pop();
+      }
+    }
+  }
+  return return_value;
+}
+
+bool solve(
+  board_t& board, const board_t& solved_board, int max_moves,
+  const attempt_move_fn& attempt_move) {
   std::cout << std::format("attempting to solve in {} moves\n", max_moves);
   std::vector<move_e> solution_moves;
-  bool solved = attempt_move(board, solved_board, solution_moves, max_moves);
+  bool solved = attempt_move_iterative_recursive(
+    board, solved_board, solution_moves, max_moves);
   if (solved) {
     std::cout << '\n';
     display_board(board);
@@ -203,24 +316,56 @@ int main(int argc, char** argv) {
   display_board(board);
   std::cout << '\n';
 
+  using fp_seconds = std::chrono::duration<float, std::chrono::seconds::period>;
+
   generate_new_puzzle(board);
 
-  std::cout << "shuffled board (unsolved):\n";
-  display_board(board);
+  {
+    auto recursive_board = board;
+
+    std::cout << "shuffled board (unsolved):\n";
+    display_board(recursive_board);
+    std::cout << '\n';
+
+    std::cout << "tile solver recursive:\n";
+    const auto before = std::chrono::steady_clock::now();
+    int initial_max_moves = 10;
+    while (true) {
+      if (solve(
+            recursive_board, solved_board, initial_max_moves,
+            attempt_move_recursive)) {
+        break;
+      }
+      initial_max_moves++;
+    }
+    const auto after = std::chrono::steady_clock::now();
+    const auto duration = fp_seconds(after - before);
+    std::cout << std::format("solved in {}\n", duration);
+  }
+
   std::cout << '\n';
 
-  using fp_seconds = std::chrono::duration<float, std::chrono::seconds::period>;
-  const auto before = std::chrono::steady_clock::now();
-  int max_moves = 10;
-  while (true) {
-    if (solve(board, solved_board, max_moves)) {
-      break;
-    }
-    max_moves++;
-  }
-  const auto after = std::chrono::steady_clock::now();
-  const auto duration = fp_seconds(after - before);
-  std::cout << std::format("solved in {}\n", duration);
+  {
+    auto iterative_board = board;
 
+    std::cout << "shuffled board (unsolved):\n";
+    display_board(iterative_board);
+    std::cout << '\n';
+
+    std::cout << "tile solver iterative:\n";
+    const auto before = std::chrono::steady_clock::now();
+    int initial_max_moves = 10;
+    while (true) {
+      if (solve(
+            iterative_board, solved_board, initial_max_moves,
+            attempt_move_iterative_recursive)) {
+        break;
+      }
+      initial_max_moves++;
+    }
+    const auto after = std::chrono::steady_clock::now();
+    const auto duration = fp_seconds(after - before);
+    std::cout << std::format("solved in {}\n", duration);
+  }
   return 0;
 }

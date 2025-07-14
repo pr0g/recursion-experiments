@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stack>
 
-int fibonacci_iterative(int n) {
+int fibonacci_iterative_1(int n) {
   if (n <= 1) {
     return n;
   }
@@ -13,7 +13,18 @@ int fibonacci_iterative(int n) {
     prev = curr;
     curr = next;
   }
+  return curr;
+}
 
+int fibonacci_iterative_2(int n) {
+  if (n <= 1) {
+    return n;
+  }
+  int prev = 0;
+  int curr = 1;
+  for (int i = 1; i < n; i++) {
+    prev = std::exchange(curr, prev + curr);
+  }
   return curr;
 }
 
@@ -137,9 +148,14 @@ int fibonacci_iterative_recursive_memoized(const int n) {
 
 int main(int argc, char** argv) {
   const int count = 20;
-  std::cout << "fibonacci iterative:\n";
+  std::cout << "fibonacci iterative 1:\n";
   for (int i = 0; i <= count; i++) {
-    std::cout << std::format("{} is {}\n", i, fibonacci_iterative(i));
+    std::cout << std::format("{} is {}\n", i, fibonacci_iterative_1(i));
+  }
+  std::cout << '\n';
+  std::cout << "fibonacci iterative 2:\n";
+  for (int i = 0; i <= count; i++) {
+    std::cout << std::format("{} is {}\n", i, fibonacci_iterative_2(i));
   }
   std::cout << '\n';
   std::cout << "fibonacci recursive:\n";

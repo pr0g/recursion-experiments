@@ -37,7 +37,7 @@ std::vector<int> mergesort_recursive(std::span<const int> items) {
 }
 
 std::vector<int> mergesort_iterative_recursive(std::span<const int> items) {
-  enum class return_address_e { before, recursive1, recursive2 };
+  enum class return_address_e { before, recursive_1, recursive_2 };
   struct frame_t {
     return_address_e return_address;
     std::span<const int> items;
@@ -58,20 +58,20 @@ std::vector<int> mergesort_iterative_recursive(std::span<const int> items) {
         call_stack.pop();
         continue;
       }
-      top.return_address = return_address_e::recursive1;
+      top.return_address = return_address_e::recursive_1;
       top.half = top.items.size() / 2;
       call_stack.push(
         frame_t{
           .return_address = return_address_e::before,
           .items = top.items.subspan(0, top.half)});
-    } else if (top.return_address == return_address_e::recursive1) {
-      top.return_address = return_address_e::recursive2;
+    } else if (top.return_address == return_address_e::recursive_1) {
+      top.return_address = return_address_e::recursive_2;
       top.lhs = return_value;
       call_stack.push(
         frame_t{
           .return_address = return_address_e::before,
           .items = top.items.subspan(top.half)});
-    } else if (top.return_address == return_address_e::recursive2) {
+    } else if (top.return_address == return_address_e::recursive_2) {
       top.rhs = return_value;
       std::vector<int> merged;
       int l = 0, r = 0;

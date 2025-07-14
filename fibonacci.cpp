@@ -49,7 +49,7 @@ int fibonacci_recursive_2(int n) {
 }
 
 int fibonacci_iterative_recursive(const int n) {
-  enum class return_address_e { before, recursive1, recursive2 };
+  enum class return_address_e { before, recursive_1, recursive_2 };
   struct frame_t {
     return_address_e return_address;
     int n;
@@ -67,15 +67,15 @@ int fibonacci_iterative_recursive(const int n) {
         call_stack.pop();
         continue;
       }
-      top.return_address = return_address_e::recursive1;
+      top.return_address = return_address_e::recursive_1;
       call_stack.push(
         frame_t{.return_address = return_address_e::before, .n = top.n - 1});
-    } else if (top.return_address == return_address_e::recursive1) {
-      top.return_address = return_address_e::recursive2;
+    } else if (top.return_address == return_address_e::recursive_1) {
+      top.return_address = return_address_e::recursive_2;
       top.minus1 = return_value;
       call_stack.push(
         frame_t{.return_address = return_address_e::before, .n = top.n - 2});
-    } else if (top.return_address == return_address_e::recursive2) {
+    } else if (top.return_address == return_address_e::recursive_2) {
       top.minus2 = return_value;
       return_value = top.minus1 + top.minus2;
       call_stack.pop();
@@ -104,7 +104,7 @@ int fibonacci_recursive_memoized(int n) {
 }
 
 int fibonacci_iterative_recursive_memoized(const int n) {
-  enum class return_address_e { before, recursive1, recursive2 };
+  enum class return_address_e { before, recursive_1, recursive_2 };
   struct frame_t {
     return_address_e return_address;
     int n;
@@ -128,15 +128,15 @@ int fibonacci_iterative_recursive_memoized(const int n) {
         call_stack.pop();
         continue;
       }
-      top.return_address = return_address_e::recursive1;
+      top.return_address = return_address_e::recursive_1;
       call_stack.push(
         frame_t{.return_address = return_address_e::before, .n = top.n - 1});
-    } else if (top.return_address == return_address_e::recursive1) {
-      top.return_address = return_address_e::recursive2;
+    } else if (top.return_address == return_address_e::recursive_1) {
+      top.return_address = return_address_e::recursive_2;
       top.minus1 = return_value;
       call_stack.push(
         frame_t{.return_address = return_address_e::before, .n = top.n - 2});
-    } else if (top.return_address == return_address_e::recursive2) {
+    } else if (top.return_address == return_address_e::recursive_2) {
       top.minus2 = return_value;
       return_value = top.minus1 + top.minus2;
       cache.insert({top.n, return_value});

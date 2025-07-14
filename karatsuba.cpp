@@ -86,7 +86,7 @@ int64_t karabutsa_recursive(const int64_t x, const int64_t y) {
 }
 
 int karabutsa_iterative_recursive(const int x, const int y) {
-  enum class return_address_e { before, recursive1, recursive2, recursive3 };
+  enum class return_address_e { before, recursive_1, recursive_2, recursive_3 };
   struct frame_t {
     return_address_e return_address;
     int x;
@@ -121,7 +121,7 @@ int karabutsa_iterative_recursive(const int x, const int y) {
         call_stack.pop();
         continue;
       }
-      top.return_address = return_address_e::recursive1;
+      top.return_address = return_address_e::recursive_1;
       std::cout << std::format("Multiplying {} * {}\n", top.x_str, top.y_str);
       if (top.x_str.size() < top.y_str.size()) {
         top.x_str = pad_zeros(
@@ -138,21 +138,21 @@ int karabutsa_iterative_recursive(const int x, const int y) {
       call_stack.push(
         frame_t{
           .return_address = return_address_e::before, .x = top.a, .y = top.c});
-    } else if (top.return_address == return_address_e::recursive1) {
-      top.return_address = return_address_e::recursive2;
+    } else if (top.return_address == return_address_e::recursive_1) {
+      top.return_address = return_address_e::recursive_2;
       top.step1 = return_value;
       call_stack.push(
         frame_t{
           .return_address = return_address_e::before, .x = top.b, .y = top.d});
-    } else if (top.return_address == return_address_e::recursive2) {
-      top.return_address = return_address_e::recursive3;
+    } else if (top.return_address == return_address_e::recursive_2) {
+      top.return_address = return_address_e::recursive_3;
       top.step2 = return_value;
       call_stack.push(
         frame_t{
           .return_address = return_address_e::before,
           .x = top.a + top.b,
           .y = top.c + top.d});
-    } else if (top.return_address == return_address_e::recursive3) {
+    } else if (top.return_address == return_address_e::recursive_3) {
       top.step3 = return_value;
       const auto step4 = top.step3 - top.step2 - top.step1;
 

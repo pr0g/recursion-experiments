@@ -169,7 +169,7 @@ bool attempt_move_recursive(
 }
 
 // extract some inline calls to help with porting iterative version
-bool attempt_move_recursive2(
+bool attempt_move_recursive_2(
   board_t& board, const board_t& solved_board, std::vector<move_e>& moves_made,
   const int moves_remaining,
   const std::optional<move_e> previous_move = std::nullopt) {

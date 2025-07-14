@@ -37,7 +37,7 @@ std::vector<std::string> balanced_parentheses_recursive(int parentheses_count) {
 
 std::vector<std::string> balanced_parentheses_iterative_recursive(
   int parentheses_count) {
-  enum class return_address_e { before, recursive1, recursive2 };
+  enum class return_address_e { before, recursive_1, recursive_2 };
   struct frame_t {
     return_address_e return_address;
     int opening;
@@ -62,7 +62,7 @@ std::vector<std::string> balanced_parentheses_iterative_recursive(
         continue;
       }
       if (top.opening > 0) {
-        top.return_address = return_address_e::recursive1;
+        top.return_address = return_address_e::recursive_1;
         call_stack.push(
           frame_t{
             .return_address = return_address_e::before,
@@ -72,7 +72,7 @@ std::vector<std::string> balanced_parentheses_iterative_recursive(
         continue;
       }
       if (top.closing > top.opening) {
-        top.return_address = return_address_e::recursive2;
+        top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
             .return_address = return_address_e::before,
@@ -83,11 +83,11 @@ std::vector<std::string> balanced_parentheses_iterative_recursive(
       }
       return_value = top.results;
       call_stack.pop();
-    } else if (top.return_address == return_address_e::recursive1) {
+    } else if (top.return_address == return_address_e::recursive_1) {
       top.results.insert(
         top.results.end(), return_value.begin(), return_value.end());
       if (top.closing > top.opening) {
-        top.return_address = return_address_e::recursive2;
+        top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
             .return_address = return_address_e::before,
@@ -98,7 +98,7 @@ std::vector<std::string> balanced_parentheses_iterative_recursive(
       }
       return_value = top.results;
       call_stack.pop();
-    } else if (top.return_address == return_address_e::recursive2) {
+    } else if (top.return_address == return_address_e::recursive_2) {
       top.results.insert(
         top.results.end(), return_value.begin(), return_value.end());
       return_value = top.results;

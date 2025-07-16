@@ -52,8 +52,7 @@ int factorial_recursive_iterative(int n) {
   };
   std::stack<frame_t> call_stack;
   call_stack.push(frame_t{.return_address = return_address_e::before, .n = n});
-
-  int return_value = -1;
+  int return_value; // uninitialised
   while (call_stack.size() > 0) {
     auto& top = call_stack.top();
     if (top.return_address == return_address_e::before) {

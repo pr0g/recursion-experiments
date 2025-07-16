@@ -1,14 +1,30 @@
 #include <format>
 #include <iostream>
+#include <numeric>
+#include <ranges>
 #include <stack>
 
-int factorial_iterative(int number) {
+int factorial_iterative_1(int n) {
   int fact = 1;
-  for (int index = number; index > 0; index--) {
-    fact *= number;
-    number--;
+  for (int index = n; index > 0; index--) {
+    fact *= n;
+    n--;
   }
   return fact;
+}
+
+int factorial_iterative_2(int n) {
+  int fact = 1;
+  for (; n > 0; n--) {
+    fact *= n;
+  }
+  return fact;
+}
+
+int factorial_iterative_3(int n) {
+  const auto r = std::views::iota(1, n + 1);
+  return std::accumulate(
+    r.begin(), r.end(), 1, [](int acc, int n) { return acc * n; });
 }
 
 // 1. What is the base case?
@@ -21,11 +37,11 @@ int factorial_iterative(int number) {
 // first half is factorial_recursive(number - 1)
 // second half is <number> * <return value> (e.g. 5 * 24)
 
-int factorial_recursive(int number) {
-  if (number <= 1) {
+int factorial_recursive(int n) {
+  if (n <= 1) {
     return 1;
   }
-  return number * factorial_recursive(number - 1);
+  return n * factorial_recursive(n - 1);
 }
 
 int factorial_recursive_iterative(int n) {
@@ -59,9 +75,19 @@ int factorial_recursive_iterative(int n) {
 
 int main(int argc, char** argv) {
   const int count = 10;
-  std::cout << "factorial iterative:\n";
+  std::cout << "factorial iterative 1:\n";
   for (int i = 0; i <= count; i++) {
-    std::cout << std::format("{}! is {}\n", i, factorial_iterative(i));
+    std::cout << std::format("{}! is {}\n", i, factorial_iterative_1(i));
+  }
+  std::cout << '\n';
+  std::cout << "factorial iterative 2:\n";
+  for (int i = 0; i <= count; i++) {
+    std::cout << std::format("{}! is {}\n", i, factorial_iterative_2(i));
+  }
+  std::cout << '\n';
+  std::cout << "factorial iterative 3:\n";
+  for (int i = 0; i <= count; i++) {
+    std::cout << std::format("{}! is {}\n", i, factorial_iterative_3(i));
   }
   std::cout << '\n';
   std::cout << "factorial recursive:\n";

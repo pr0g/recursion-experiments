@@ -29,7 +29,6 @@ bool palindrome_iterative_recursive(std::string_view phrase) {
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{.return_address = return_address_e::before, .phrase = phrase});
-
   bool return_value = false;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();

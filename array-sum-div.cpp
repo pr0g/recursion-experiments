@@ -3,7 +3,7 @@
 #include <span>
 #include <vector>
 
-int array_sum_div_recursive(std::span<int> numbers) {
+int array_sum_div_recursive(std::span<const int> numbers) {
   if (numbers.empty()) {
     return 0;
   }
@@ -16,11 +16,11 @@ int array_sum_div_recursive(std::span<int> numbers) {
   return lhs + rhs;
 }
 
-int array_sum_div_iterative_recursive(std::span<int> numbers) {
+int array_sum_div_iterative_recursive(std::span<const int> numbers) {
   enum class return_address_e { before, recursive_1, recursive_2 };
   struct frame_t {
     return_address_e return_address;
-    std::span<int> numbers;
+    std::span<const int> numbers;
     int half;
     int lhs;
     int rhs;

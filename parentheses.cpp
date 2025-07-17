@@ -37,9 +37,9 @@ std::vector<std::string> balanced_parentheses_recursive(int parentheses_count) {
 
 std::vector<std::string> balanced_parentheses_iterative_recursive(
   int parentheses_count) {
-  enum class return_address_e { before, recursive_1, recursive_2 };
+  enum class return_address_e { recursive_1, recursive_2 };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int opening;
     int closing;
     std::string current;
@@ -48,14 +48,13 @@ std::vector<std::string> balanced_parentheses_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      .return_address = return_address_e::before,
       .closing = parentheses_count,
       .opening = parentheses_count,
       .current = ""});
   std::vector<std::string> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.opening == 0 && top.closing == 0) {
         return_value = std::vector<std::string>(1, top.current);
         call_stack.pop();
@@ -65,7 +64,6 @@ std::vector<std::string> balanced_parentheses_iterative_recursive(
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
             .opening = top.opening - 1,
             .closing = top.closing,
             .current = top.current + "("});
@@ -75,7 +73,6 @@ std::vector<std::string> balanced_parentheses_iterative_recursive(
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
             .opening = top.opening,
             .closing = top.closing - 1,
             .current = top.current + ")"});
@@ -90,7 +87,6 @@ std::vector<std::string> balanced_parentheses_iterative_recursive(
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
             .opening = top.opening,
             .closing = top.closing - 1,
             .current = top.current + ")"});

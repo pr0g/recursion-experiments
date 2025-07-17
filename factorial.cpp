@@ -52,7 +52,7 @@ int factorial_recursive_2(int n) {
   return n * n_minus_1;
 }
 
-int factorial_recursive_iterative(int n) {
+int factorial_iterative_recursive(int n) {
   enum class return_address_e { recursive };
   struct frame_t {
     std::optional<return_address_e> return_address;
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
   std::cout << "factorial iterative recursive:\n";
   for (int i = 0; i <= count; i++) {
     std::cout << std::format(
-      "{}! is {}\n", i, factorial_recursive_iterative(i));
+      "{}! is {}\n", i, factorial_iterative_recursive(i));
   }
   return 0;
 }

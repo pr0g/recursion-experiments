@@ -44,13 +44,12 @@ int sum_array_iterative_recursive(const std::vector<int>& tail) {
         return_value = 0;
         call_stack.pop();
         continue;
-      } else {
-        top.return_address = return_address_e::recursive;
-        call_stack.push(
-          frame_t{
-            .return_address = return_address_e::before,
-            .tail = std::vector(top.tail.begin() + 1, top.tail.end())});
       }
+      top.return_address = return_address_e::recursive;
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before,
+          .tail = std::vector(top.tail.begin() + 1, top.tail.end())});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = top.tail[0] + return_value;
       call_stack.pop();

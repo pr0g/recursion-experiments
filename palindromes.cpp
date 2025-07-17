@@ -37,13 +37,13 @@ bool palindrome_iterative_recursive(std::string_view phrase) {
       if (top.phrase.empty() || top.phrase.length() == 1) {
         return_value = true;
         call_stack.pop();
-      } else {
-        top.return_address = return_address_e::recursive;
-        call_stack.push(
-          frame_t{
-            .phrase = top.phrase.substr(1, top.phrase.length() - 2),
-            .return_address = return_address_e::before});
+        continue;
       }
+      top.return_address = return_address_e::recursive;
+      call_stack.push(
+        frame_t{
+          .phrase = top.phrase.substr(1, top.phrase.length() - 2),
+          .return_address = return_address_e::before});
     } else if (top.return_address == return_address_e::recursive) {
       const bool match = top.phrase[0] == top.phrase[top.phrase.length() - 1];
       return_value = match && return_value;

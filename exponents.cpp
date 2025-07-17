@@ -50,13 +50,12 @@ int exponents_iterative_recursive(const int number, const int power) {
       if (top.power == 1) {
         return_value = number;
         call_stack.pop();
-      } else {
-        top.return_address = return_address_e::recursive;
-        call_stack.push(
-          frame_t{
-            .return_address = return_address_e::before,
-            .power = top.power / 2});
+        continue;
       }
+      top.return_address = return_address_e::recursive;
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before, .power = top.power / 2});
     } else if (top.return_address == return_address_e::recursive) {
       if (top.power % 2 == 0) {
         return_value = return_value * return_value;
@@ -64,7 +63,6 @@ int exponents_iterative_recursive(const int number, const int power) {
         return_value = return_value * return_value * number;
       }
       call_stack.pop();
-      continue;
     }
   }
   return return_value;

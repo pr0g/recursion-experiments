@@ -116,16 +116,16 @@ void solve_towers_of_hanoi_iterative_recursive(
       if (top.number_of_disks == 1) {
         move_disk(towers, top.start_tower, top.end_tower);
         call_stack.pop();
-      } else {
-        top.return_address = return_address_e::recursive_1;
-        call_stack.push(
-          frame_t{
-            .return_address = return_address_e::before,
-            .number_of_disks = top.number_of_disks - 1,
-            .start_tower = top.start_tower,
-            .end_tower = top.temp_tower,
-            .temp_tower = top.end_tower});
+        continue;
       }
+      top.return_address = return_address_e::recursive_1;
+      call_stack.push(
+        frame_t{
+          .return_address = return_address_e::before,
+          .number_of_disks = top.number_of_disks - 1,
+          .start_tower = top.start_tower,
+          .end_tower = top.temp_tower,
+          .temp_tower = top.end_tower});
     } else if (top.return_address == return_address_e::recursive_1) {
       move_disk(towers, top.start_tower, top.end_tower);
       top.return_address = return_address_e::recursive_2;

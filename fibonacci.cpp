@@ -1,6 +1,7 @@
 #include <format>
 #include <iostream>
 #include <stack>
+#include <optional>
 
 int fibonacci_iterative_1(int n) {
   if (n <= 1) {
@@ -49,32 +50,30 @@ int fibonacci_recursive_2(int n) {
 }
 
 int fibonacci_iterative_recursive(const int n) {
-  enum class return_address_e { before, recursive_1, recursive_2 };
+  enum class return_address_e { recursive_1, recursive_2 };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int n;
     int n_minus_1;
     int n_minus_2;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(frame_t{.return_address = return_address_e::before, .n = n});
+  call_stack.push(frame_t{.n = n});
   int return_value = 0;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.n <= 1) {
         return_value = top.n;
         call_stack.pop();
         continue;
       }
       top.return_address = return_address_e::recursive_1;
-      call_stack.push(
-        frame_t{.return_address = return_address_e::before, .n = top.n - 1});
+      call_stack.push(frame_t{.n = top.n - 1});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       top.n_minus_1 = return_value;
-      call_stack.push(
-        frame_t{.return_address = return_address_e::before, .n = top.n - 2});
+      call_stack.push(frame_t{.n = top.n - 2});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.n_minus_2 = return_value;
       return_value = top.n_minus_1 + top.n_minus_2;
@@ -104,20 +103,20 @@ int fibonacci_recursive_memoized(int n) {
 }
 
 int fibonacci_iterative_recursive_memoized(const int n) {
-  enum class return_address_e { before, recursive_1, recursive_2 };
+  enum class return_address_e { recursive_1, recursive_2 };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int n;
     int n_minus_1;
     int n_minus_2;
   };
   std::unordered_map<int, int> cache;
   std::stack<frame_t> call_stack;
-  call_stack.push(frame_t{.return_address = return_address_e::before, .n = n});
+  call_stack.push(frame_t{.n = n});
   int return_value = 0;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.n <= 1) {
         return_value = top.n;
         call_stack.pop();
@@ -129,13 +128,11 @@ int fibonacci_iterative_recursive_memoized(const int n) {
         continue;
       }
       top.return_address = return_address_e::recursive_1;
-      call_stack.push(
-        frame_t{.return_address = return_address_e::before, .n = top.n - 1});
+      call_stack.push(frame_t{.n = top.n - 1});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       top.n_minus_1 = return_value;
-      call_stack.push(
-        frame_t{.return_address = return_address_e::before, .n = top.n - 2});
+      call_stack.push(frame_t{.n = top.n - 2});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.n_minus_2 = return_value;
       return_value = top.n_minus_1 + top.n_minus_2;

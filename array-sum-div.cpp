@@ -2,6 +2,7 @@
 #include <iostream>
 #include <span>
 #include <vector>
+#include <optional>
 
 int array_sum_div_recursive(std::span<const int> numbers) {
   if (numbers.empty()) {

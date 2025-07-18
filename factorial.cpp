@@ -1,6 +1,7 @@
 #include <format>
 #include <iostream>
 #include <numeric>
+#include <optional>
 #include <ranges>
 #include <stack>
 

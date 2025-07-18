@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <ranges>
 
 std::vector<std::string> get_combinations_recursive_logging(
@@ -77,9 +78,8 @@ std::vector<std::string> get_combinations_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      
-      .characters = characters,
-      .k = k});
+
+      .characters = characters, .k = k});
   std::vector<std::string> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
@@ -98,9 +98,8 @@ std::vector<std::string> get_combinations_iterative_recursive(
       top.tail = top.characters.substr(1);
       call_stack.push(
         frame_t{
-          
-          .characters = top.tail,
-          .k = top.k - 1});
+
+          .characters = top.tail, .k = top.k - 1});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       const auto tail_combinations = return_value;
@@ -109,9 +108,8 @@ std::vector<std::string> get_combinations_iterative_recursive(
       }
       call_stack.push(
         frame_t{
-          
-          .characters = top.tail,
-          .k = top.k});
+
+          .characters = top.tail, .k = top.k});
     } else if (top.return_address == return_address_e::recursive_2) {
       const auto next_combinations = return_value;
       top.combinations.insert(

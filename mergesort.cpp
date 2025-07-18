@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <ranges>
 #include <span>
 #include <vector>
@@ -46,8 +47,7 @@ std::vector<int> mergesort_iterative_recursive(std::span<const int> items) {
     int half;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{ .items = items});
+  call_stack.push(frame_t{.items = items});
 
   std::vector<int> return_value;
   while (!call_stack.empty()) {
@@ -62,14 +62,14 @@ std::vector<int> mergesort_iterative_recursive(std::span<const int> items) {
       top.half = top.items.size() / 2;
       call_stack.push(
         frame_t{
-          
+
           .items = top.items.subspan(0, top.half)});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       top.lhs = return_value;
       call_stack.push(
         frame_t{
-          
+
           .items = top.items.subspan(top.half)});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.rhs = return_value;

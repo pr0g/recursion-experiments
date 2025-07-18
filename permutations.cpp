@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <ranges>
 #include <span>
 
@@ -47,9 +48,8 @@ std::vector<std::string> get_permutations_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      
-      .characters = characters,
-      .indent_length = indent_length});
+
+      .characters = characters, .indent_length = indent_length});
   std::vector<std::string> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
@@ -71,7 +71,7 @@ std::vector<std::string> get_permutations_iterative_recursive(
       top.tail = top.characters.substr(1);
       call_stack.push(
         frame_t{
-          
+
           .characters = top.tail,
           .tail = top.tail,
           .indent_length = top.indent_length + 1});
@@ -142,7 +142,7 @@ std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      
+
       .characters = characters,
       .permutation_length = permutation_length,
       .prefix = prefix});
@@ -172,7 +172,7 @@ std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
         std::string new_prefix = top.prefix + character;
         call_stack.push(
           frame_t{
-            
+
             .characters = top.characters,
             .permutation_length = *top.permutation_length - 1,
             .prefix = new_prefix});
@@ -190,7 +190,7 @@ std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
         std::string new_prefix = top.prefix + character;
         call_stack.push(
           frame_t{
-            
+
             .characters = top.characters,
             .permutation_length = *top.permutation_length - 1,
             .prefix = new_prefix});

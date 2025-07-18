@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <vector>
 
 using image_t = std::vector<std::string>;
@@ -50,11 +51,8 @@ void flood_fill_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      
-      .row = row,
-      .col = col,
-      .new_char = new_char,
-      .old_char = old_char});
+
+      .row = row, .col = col, .new_char = new_char, .old_char = old_char});
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
     if (!top.return_address.has_value()) {
@@ -67,8 +65,7 @@ void flood_fill_iterative_recursive(
         image[top.row][top.col] = top.new_char;
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
-          {
-           .row = top.row + 1,
+          {.row = top.row + 1,
            .col = top.col,
            .new_char = top.new_char,
            .old_char = top.old_char});
@@ -76,24 +73,21 @@ void flood_fill_iterative_recursive(
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       call_stack.push(
-        {
-         .row = top.row - 1,
+        {.row = top.row - 1,
          .col = top.col,
          .new_char = top.new_char,
          .old_char = top.old_char});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.return_address = return_address_e::recursive_3;
       call_stack.push(
-        {
-         .row = top.row,
+        {.row = top.row,
          .col = top.col + 1,
          .new_char = top.new_char,
          .old_char = top.old_char});
     } else if (top.return_address == return_address_e::recursive_3) {
       top.return_address = return_address_e::recursive_4;
       call_stack.push(
-        {
-         .row = top.row,
+        {.row = top.row,
          .col = top.col - 1,
          .new_char = top.new_char,
          .old_char = top.old_char});

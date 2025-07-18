@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 
 int ackermann_recursive(int m, int n, int indentation = 0) {
   std::string indent;

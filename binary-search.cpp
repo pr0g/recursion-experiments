@@ -2,6 +2,7 @@
 #include <format>
 #include <iostream>
 #include <numeric>
+#include <optional>
 #include <span>
 
 std::optional<int> binary_search_recursive(
@@ -79,9 +80,8 @@ std::optional<int> binary_search_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      
-      .left = left,
-      .right = right});
+
+      .left = left, .right = right});
   std::optional<int> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
@@ -104,16 +104,14 @@ std::optional<int> binary_search_iterative_recursive(
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
           frame_t{
-            
-            .left = top.left,
-            .right = mid - 1});
+
+            .left = top.left, .right = mid - 1});
       } else {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-            
-            .left = mid + 1,
-            .right = top.right});
+
+            .left = mid + 1, .right = top.right});
       }
     } else if (top.return_address == return_address_e::recursive_1) {
       call_stack.pop();

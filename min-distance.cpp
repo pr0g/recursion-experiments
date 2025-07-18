@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <string_view>
 
 int min_distance_recursive(
@@ -57,9 +58,7 @@ int min_distance_iterative_recursive(
     int c;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{
-       .lhs = lhs, .rhs = rhs});
+  call_stack.push(frame_t{.lhs = lhs, .rhs = rhs});
 
   int return_value = 0;
   while (!call_stack.empty()) {
@@ -75,14 +74,14 @@ int min_distance_iterative_recursive(
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
           frame_t{
-            
+
             .lhs = top.lhs.substr(0, top.lhs.size() - 1),
             .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
       } else {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-            
+
             .lhs = top.lhs.substr(0, top.lhs.size() - 1),
             .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
       }
@@ -93,17 +92,15 @@ int min_distance_iterative_recursive(
       top.return_address = return_address_e::recursive_3;
       call_stack.push(
         frame_t{
-          
-          .lhs = top.lhs,
-          .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
+
+          .lhs = top.lhs, .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
     } else if (top.return_address == return_address_e::recursive_3) {
       top.b = return_value;
       top.return_address = return_address_e::recursive_4;
       call_stack.push(
         frame_t{
-          
-          .lhs = top.lhs.substr(0, top.lhs.size() - 1),
-          .rhs = top.rhs});
+
+          .lhs = top.lhs.substr(0, top.lhs.size() - 1), .rhs = top.rhs});
     } else if (top.return_address == return_address_e::recursive_4) {
       top.c = return_value;
       return_value = 1 + std::min(top.a, std::min(top.b, top.c));

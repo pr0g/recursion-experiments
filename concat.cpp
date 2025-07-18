@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <span>
 
 std::string concat_recursive(const std::span<std::string> words) {

@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <string_view>
 
 std::string reverse_string_iterative(std::string_view string) {
@@ -38,8 +39,7 @@ std::string reverse_string_iterative_recursive(std::string_view string) {
     std::optional<return_address_e> return_address;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{ .string = string});
+  call_stack.push(frame_t{.string = string});
 
   std::string return_value;
   while (!call_stack.empty()) {
@@ -53,7 +53,7 @@ std::string reverse_string_iterative_recursive(std::string_view string) {
       top.return_address = return_address_e::recursive;
       call_stack.push(
         frame_t{
-          
+
           .string = top.string.substr(1, top.string.size())});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = return_value + std::string(top.string.substr(0, 1));

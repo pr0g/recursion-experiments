@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <stack>
 
 int sum_series_iterative(int n) {
@@ -24,7 +25,7 @@ int sum_series_iterative_recursive(int n) {
     int n;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(frame_t{ .n = n});
+  call_stack.push(frame_t{.n = n});
   int return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
@@ -35,8 +36,7 @@ int sum_series_iterative_recursive(int n) {
         continue;
       }
       top.return_address = return_address_e::recursive;
-      call_stack.push(
-        frame_t{ .n = top.n - 1});
+      call_stack.push(frame_t{.n = top.n - 1});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = top.n + return_value;
       call_stack.pop();
@@ -69,7 +69,7 @@ int power_series_iterative_recursive(int n, int power = 2) {
     int n;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(frame_t{ .n = n});
+  call_stack.push(frame_t{.n = n});
   int return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
@@ -80,8 +80,7 @@ int power_series_iterative_recursive(int n, int power = 2) {
         continue;
       }
       top.return_address = return_address_e::recursive;
-      call_stack.push(
-        frame_t{ .n = top.n - 1});
+      call_stack.push(frame_t{.n = top.n - 1});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = power + return_value * 2;
       call_stack.pop();

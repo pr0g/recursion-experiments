@@ -1,6 +1,7 @@
 #include <format>
 #include <iostream>
 #include <stack>
+#include <optional>
 
 // head (element), tail (rest of array)
 

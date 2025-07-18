@@ -1,6 +1,7 @@
 #include <array>
 #include <format>
 #include <iostream>
+#include <optional>
 #include <span>
 
 int product_recursive(std::span<const int> numbers) {

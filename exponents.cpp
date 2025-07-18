@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 
 int exponents_iterative(const int number, const int power) {
   int result = 1;
@@ -41,8 +42,7 @@ int exponents_iterative_recursive(const int number, const int power) {
     int power;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{ .power = power});
+  call_stack.push(frame_t{.power = power});
   int return_value = 1;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
@@ -53,9 +53,7 @@ int exponents_iterative_recursive(const int number, const int power) {
         continue;
       }
       top.return_address = return_address_e::recursive;
-      call_stack.push(
-        frame_t{
-           .power = top.power / 2});
+      call_stack.push(frame_t{.power = top.power / 2});
     } else if (top.return_address == return_address_e::recursive) {
       if (top.power % 2 == 0) {
         return_value = return_value * return_value;

@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <ranges>
 #include <span>
 
@@ -66,8 +67,7 @@ void quicksort_iterative_recursive_2(std::span<int> items) {
     int midpoint;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{ .items = items});
+  call_stack.push(frame_t{.items = items});
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
     if (!top.return_address.has_value()) {
@@ -80,13 +80,13 @@ void quicksort_iterative_recursive_2(std::span<int> items) {
       top.return_address = return_address_e::recursive_1;
       call_stack.push(
         frame_t{
-          
+
           .items = top.items.subspan(0, top.midpoint)});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       call_stack.push(
         frame_t{
-          
+
           .items = top.items.subspan(top.midpoint)});
     } else if (top.return_address == return_address_e::recursive_2) {
       call_stack.pop();

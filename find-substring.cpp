@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <optional>
 
 int find_substring_iterative(
   std::string_view needle, std::string_view haystack) {
@@ -31,8 +32,7 @@ int find_substring_iterative_recursive(
     int offset;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{ .offset = offset});
+  call_stack.push(frame_t{.offset = offset});
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
     if (!top.return_address.has_value()) {
@@ -47,7 +47,7 @@ int find_substring_iterative_recursive(
       } else {
         call_stack.push(
           frame_t{
-            
+
             .offset = top.offset + 1});
       }
     } else if (top.return_address == return_address_e::recursive) {

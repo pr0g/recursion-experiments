@@ -1,7 +1,7 @@
 #include <format>
 #include <iostream>
-#include <stack>
 #include <optional>
+#include <stack>
 
 int fibonacci_iterative_1(int n) {
   if (n <= 1) {

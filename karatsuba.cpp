@@ -1,6 +1,7 @@
 #include <chrono>
 #include <format>
 #include <iostream>
+#include <optional>
 #include <span>
 #include <vector>
 
@@ -103,8 +104,7 @@ int karabutsa_iterative_recursive(const int x, const int y) {
     int step3;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{ .x = x, .y = y});
+  call_stack.push(frame_t{.x = x, .y = y});
 
   int return_value;
   while (!call_stack.empty()) {
@@ -135,23 +135,18 @@ int karabutsa_iterative_recursive(const int x, const int y) {
       top.b = std::stoi(top.x_str.substr(top.half_digits));
       top.c = std::stoi(top.y_str.substr(0, top.half_digits));
       top.d = std::stoi(top.y_str.substr(top.half_digits));
-      call_stack.push(
-        frame_t{
-           .x = top.a, .y = top.c});
+      call_stack.push(frame_t{.x = top.a, .y = top.c});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       top.step1 = return_value;
-      call_stack.push(
-        frame_t{
-           .x = top.b, .y = top.d});
+      call_stack.push(frame_t{.x = top.b, .y = top.d});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.return_address = return_address_e::recursive_3;
       top.step2 = return_value;
       call_stack.push(
         frame_t{
-          
-          .x = top.a + top.b,
-          .y = top.c + top.d});
+
+          .x = top.a + top.b, .y = top.c + top.d});
     } else if (top.return_address == return_address_e::recursive_3) {
       top.step3 = return_value;
       const auto step4 = top.step3 - top.step2 - top.step1;

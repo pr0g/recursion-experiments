@@ -51,7 +51,6 @@ void flood_fill_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-
       .row = row, .col = col, .new_char = new_char, .old_char = old_char});
   while (!call_stack.empty()) {
     auto& top = call_stack.top();

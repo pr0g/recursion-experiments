@@ -209,10 +209,7 @@ bool attempt_move_iterative_recursive(
     int i;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{
-      
-      .moves_remaining = moves_remaining});
+  call_stack.push(frame_t{.moves_remaining = moves_remaining});
   bool return_value = false;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
@@ -237,9 +234,7 @@ bool attempt_move_iterative_recursive(
         moves_made.push_back(move);
         call_stack.push(
           frame_t{
-            
-            .moves_remaining = top.moves_remaining - 1,
-            .previous_move = move});
+            .moves_remaining = top.moves_remaining - 1, .previous_move = move});
         continue;
       }
       call_stack.pop();
@@ -262,9 +257,7 @@ bool attempt_move_iterative_recursive(
         // make recursive call again from 'inside' the loop
         call_stack.push(
           frame_t{
-            
-            .moves_remaining = top.moves_remaining - 1,
-            .previous_move = move});
+            .moves_remaining = top.moves_remaining - 1, .previous_move = move});
       } else {
         return_value = false;
         call_stack.pop();

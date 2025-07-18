@@ -143,10 +143,7 @@ int karabutsa_iterative_recursive(const int x, const int y) {
     } else if (top.return_address == return_address_e::recursive_2) {
       top.return_address = return_address_e::recursive_3;
       top.step2 = return_value;
-      call_stack.push(
-        frame_t{
-
-          .x = top.a + top.b, .y = top.c + top.d});
+      call_stack.push(frame_t{.x = top.a + top.b, .y = top.c + top.d});
     } else if (top.return_address == return_address_e::recursive_3) {
       top.step3 = return_value;
       const auto step4 = top.step3 - top.step2 - top.step1;

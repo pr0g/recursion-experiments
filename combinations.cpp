@@ -76,10 +76,7 @@ std::vector<std::string> get_combinations_iterative_recursive(
     std::string tail;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{
-
-      .characters = characters, .k = k});
+  call_stack.push(frame_t{.characters = characters, .k = k});
   std::vector<std::string> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
@@ -96,20 +93,14 @@ std::vector<std::string> get_combinations_iterative_recursive(
       top.return_address = return_address_e::recursive_1;
       top.head = top.characters.substr(0, 1);
       top.tail = top.characters.substr(1);
-      call_stack.push(
-        frame_t{
-
-          .characters = top.tail, .k = top.k - 1});
+      call_stack.push(frame_t{.characters = top.tail, .k = top.k - 1});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       const auto tail_combinations = return_value;
       for (const auto& tail_combination : tail_combinations) {
         top.combinations.push_back(top.head + tail_combination);
       }
-      call_stack.push(
-        frame_t{
-
-          .characters = top.tail, .k = top.k});
+      call_stack.push(frame_t{.characters = top.tail, .k = top.k});
     } else if (top.return_address == return_address_e::recursive_2) {
       const auto next_combinations = return_value;
       top.combinations.insert(

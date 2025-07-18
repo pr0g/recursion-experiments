@@ -78,16 +78,10 @@ void quicksort_iterative_recursive_2(std::span<int> items) {
       top.midpoint = partition(top.items, top.items.back());
       std::swap(top.items[top.midpoint], top.items[top.items.size() - 1]);
       top.return_address = return_address_e::recursive_1;
-      call_stack.push(
-        frame_t{
-
-          .items = top.items.subspan(0, top.midpoint)});
+      call_stack.push(frame_t{.items = top.items.subspan(0, top.midpoint)});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
-      call_stack.push(
-        frame_t{
-
-          .items = top.items.subspan(top.midpoint)});
+      call_stack.push(frame_t{.items = top.items.subspan(top.midpoint)});
     } else if (top.return_address == return_address_e::recursive_2) {
       call_stack.pop();
     }

@@ -1,8 +1,8 @@
 #include <format>
 #include <iostream>
+#include <optional>
 #include <span>
 #include <vector>
-#include <optional>
 
 int array_sum_div_recursive(std::span<const int> numbers) {
   if (numbers.empty()) {
@@ -44,17 +44,11 @@ int array_sum_div_iterative_recursive(std::span<const int> numbers) {
       }
       top.return_address = return_address_e::recursive_1;
       top.half = top.numbers.size() / 2;
-      call_stack.push(
-        frame_t{
-
-          .numbers = top.numbers.subspan(0, top.half)});
+      call_stack.push(frame_t{.numbers = top.numbers.subspan(0, top.half)});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       top.lhs = return_value;
-      call_stack.push(
-        frame_t{
-
-          .numbers = top.numbers.subspan(top.half)});
+      call_stack.push(frame_t{.numbers = top.numbers.subspan(top.half)});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.rhs = return_value;
       return_value = top.lhs + top.rhs;

@@ -1,7 +1,7 @@
 #include <format>
 #include <iostream>
-#include <stack>
 #include <optional>
+#include <stack>
 
 // head (element), tail (rest of array)
 
@@ -34,8 +34,7 @@ int sum_array_iterative_recursive(const std::vector<int>& tail) {
     std::vector<int> tail;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{ .tail = tail});
+  call_stack.push(frame_t{.tail = tail});
 
   int return_value = 0;
   while (!call_stack.empty()) {
@@ -48,9 +47,7 @@ int sum_array_iterative_recursive(const std::vector<int>& tail) {
       }
       top.return_address = return_address_e::recursive;
       call_stack.push(
-        frame_t{
-          
-          .tail = std::vector(top.tail.begin() + 1, top.tail.end())});
+        frame_t{.tail = std::vector(top.tail.begin() + 1, top.tail.end())});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = top.tail[0] + return_value;
       call_stack.pop();

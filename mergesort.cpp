@@ -60,17 +60,11 @@ std::vector<int> mergesort_iterative_recursive(std::span<const int> items) {
       }
       top.return_address = return_address_e::recursive_1;
       top.half = top.items.size() / 2;
-      call_stack.push(
-        frame_t{
-
-          .items = top.items.subspan(0, top.half)});
+      call_stack.push(frame_t{.items = top.items.subspan(0, top.half)});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       top.lhs = return_value;
-      call_stack.push(
-        frame_t{
-
-          .items = top.items.subspan(top.half)});
+      call_stack.push(frame_t{.items = top.items.subspan(top.half)});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.rhs = return_value;
       std::vector<int> merged;

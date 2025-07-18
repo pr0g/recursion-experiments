@@ -74,14 +74,12 @@ int min_distance_iterative_recursive(
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
           frame_t{
-
             .lhs = top.lhs.substr(0, top.lhs.size() - 1),
             .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
       } else {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-
             .lhs = top.lhs.substr(0, top.lhs.size() - 1),
             .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
       }
@@ -91,16 +89,12 @@ int min_distance_iterative_recursive(
       top.a = return_value;
       top.return_address = return_address_e::recursive_3;
       call_stack.push(
-        frame_t{
-
-          .lhs = top.lhs, .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
+        frame_t{.lhs = top.lhs, .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
     } else if (top.return_address == return_address_e::recursive_3) {
       top.b = return_value;
       top.return_address = return_address_e::recursive_4;
       call_stack.push(
-        frame_t{
-
-          .lhs = top.lhs.substr(0, top.lhs.size() - 1), .rhs = top.rhs});
+        frame_t{.lhs = top.lhs.substr(0, top.lhs.size() - 1), .rhs = top.rhs});
     } else if (top.return_address == return_address_e::recursive_4) {
       top.c = return_value;
       return_value = 1 + std::min(top.a, std::min(top.b, top.c));

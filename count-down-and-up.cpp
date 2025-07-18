@@ -31,10 +31,7 @@ void count_down_and_up_iterative_recursive(const int number) {
         continue;
       }
       top.return_address = return_address_e::recursive;
-      call_stack.push(
-        frame_t{
-
-          .number = top.number - 1});
+      call_stack.push(frame_t{.number = top.number - 1});
     } else if (top.return_address == return_address_e::recursive) {
       std::cout << std::format("{} returning\n", top.number);
       call_stack.pop();

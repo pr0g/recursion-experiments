@@ -52,9 +52,7 @@ std::string reverse_string_iterative_recursive(std::string_view string) {
       }
       top.return_address = return_address_e::recursive;
       call_stack.push(
-        frame_t{
-
-          .string = top.string.substr(1, top.string.size())});
+        frame_t{.string = top.string.substr(1, top.string.size())});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = return_value + std::string(top.string.substr(0, 1));
       call_stack.pop();

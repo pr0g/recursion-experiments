@@ -37,20 +37,14 @@ void preorder_traversal_iterative_recursive(node_t* node) {
       std::cout << std::format("{}\n", top.node->data);
       if (top.child_index < top.node->children.size()) {
         top.return_address = return_address_e::recursive;
-        call_stack.push(
-          frame_t{
-
-            .node = top.node->children[top.child_index]});
+        call_stack.push(frame_t{.node = top.node->children[top.child_index]});
         top.child_index++;
       } else {
         call_stack.pop();
       }
     } else if (top.return_address == return_address_e::recursive) {
       if (top.child_index < top.node->children.size()) {
-        call_stack.push(
-          frame_t{
-
-            .node = top.node->children[top.child_index]});
+        call_stack.push(frame_t{.node = top.node->children[top.child_index]});
         top.child_index++;
       } else {
         call_stack.pop();
@@ -87,10 +81,7 @@ void postorder_traversal_iterative_recursive(node_t* node) {
       }
       if (top.child_index < top.node->children.size()) {
         top.return_address = return_address_e::recursive;
-        call_stack.push(
-          frame_t{
-
-            .node = top.node->children[top.child_index]});
+        call_stack.push(frame_t{.node = top.node->children[top.child_index]});
         top.child_index++;
       } else {
         std::cout << std::format("{}\n", top.node->data);
@@ -98,10 +89,7 @@ void postorder_traversal_iterative_recursive(node_t* node) {
       }
     } else if (top.return_address == return_address_e::recursive) {
       if (top.child_index < top.node->children.size()) {
-        call_stack.push(
-          frame_t{
-
-            .node = top.node->children[top.child_index]});
+        call_stack.push(frame_t{.node = top.node->children[top.child_index]});
         top.child_index++;
       } else {
         std::cout << std::format("{}\n", top.node->data);
@@ -143,10 +131,7 @@ void inorder_traversal_iterative_recursive(node_t* node) {
       }
       if (top.child_index < std::min<int>(1, top.node->children.size())) {
         top.return_address = return_address_e::recursive_1;
-        call_stack.push(
-          frame_t{
-
-            .node = top.node->children[top.child_index]});
+        call_stack.push(frame_t{.node = top.node->children[top.child_index]});
         top.child_index++;
       } else {
         std::cout << std::format("{}\n", top.node->data);
@@ -156,10 +141,7 @@ void inorder_traversal_iterative_recursive(node_t* node) {
       std::cout << std::format("{}\n", top.node->data);
       if (top.child_index < top.node->children.size()) {
         top.return_address = return_address_e::recursive_2;
-        call_stack.push(
-          frame_t{
-
-            .node = top.node->children[top.child_index]});
+        call_stack.push(frame_t{.node = top.node->children[top.child_index]});
         top.child_index++;
       } else {
         call_stack.pop();

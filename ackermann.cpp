@@ -41,14 +41,11 @@ int ackermann_iterative_recursive(int m, int n, int indentation = 0) {
       } else if (top.m > 0 && top.n == 0) {
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
-          frame_t{
-
-            .m = top.m - 1, .n = 1, .indentation = top.indentation + 1});
+          frame_t{.m = top.m - 1, .n = 1, .indentation = top.indentation + 1});
       } else if (top.m > 0 && top.n > 0) {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-
             .m = top.m, .n = top.n - 1, .indentation = top.indentation + 1});
       }
     } else if (top.return_address == return_address_e::recursive_1) {
@@ -57,7 +54,6 @@ int ackermann_iterative_recursive(int m, int n, int indentation = 0) {
       top.return_address = return_address_e::recursive_3;
       call_stack.push(
         frame_t{
-
           .m = top.m - 1,
           .n = return_value,
           .indentation = top.indentation + 1});

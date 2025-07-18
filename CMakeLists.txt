@@ -153,3 +153,7 @@ target_compile_features(maze-generator PRIVATE cxx_std_20)
 add_executable(tile-solver)
 target_sources(tile-solver PRIVATE tile-solver.cpp)
 target_compile_features(tile-solver PRIVATE cxx_std_20)
+
+add_executable(phone-digit-letters)
+target_sources(phone-digit-letters PRIVATE phone-digit-letters.cpp)
+target_compile_features(phone-digit-letters PRIVATE cxx_std_20)

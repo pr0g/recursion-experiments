@@ -65,9 +65,9 @@ std::vector<std::string> get_combinations_recursive(
 
 std::vector<std::string> get_combinations_iterative_recursive(
   const std::string& characters, int k) {
-  enum class return_address_e { before, recursive_1, recursive_2 };
+  enum class return_address_e { recursive_1, recursive_2 };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::string characters;
     int k;
     std::vector<std::string> combinations;
@@ -77,13 +77,13 @@ std::vector<std::string> get_combinations_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      .return_address = return_address_e::before,
+      
       .characters = characters,
       .k = k});
   std::vector<std::string> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.k == 0) {
         return_value = std::vector<std::string>({""});
         call_stack.pop();
@@ -98,7 +98,7 @@ std::vector<std::string> get_combinations_iterative_recursive(
       top.tail = top.characters.substr(1);
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+          
           .characters = top.tail,
           .k = top.k - 1});
     } else if (top.return_address == return_address_e::recursive_1) {
@@ -109,7 +109,7 @@ std::vector<std::string> get_combinations_iterative_recursive(
       }
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+          
           .characters = top.tail,
           .k = top.k});
     } else if (top.return_address == return_address_e::recursive_2) {

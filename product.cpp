@@ -22,19 +22,18 @@ int product_iterative(std::span<const int> numbers) {
 }
 
 int product_iterative_recursive(std::span<const int> numbers) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::span<const int> numbers;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{.return_address = return_address_e::before, .numbers = numbers});
+  call_stack.push(frame_t{.numbers = numbers});
 
   int return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.numbers.empty()) {
         return_value = 0;
         call_stack.pop();
@@ -47,9 +46,7 @@ int product_iterative_recursive(std::span<const int> numbers) {
       }
       top.return_address = return_address_e::recursive;
       call_stack.push(
-        frame_t{
-          .numbers = top.numbers.subspan(1, top.numbers.size() - 1),
-          .return_address = return_address_e::before});
+        frame_t{.numbers = top.numbers.subspan(1, top.numbers.size() - 1)});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = top.numbers[0] * return_value;
       call_stack.pop();

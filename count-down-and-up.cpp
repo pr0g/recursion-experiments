@@ -13,17 +13,17 @@ void count_down_and_up_recursive(const int number) {
 }
 
 void count_down_and_up_iterative_recursive(const int number) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int number;
   };
   std::stack<frame_t> call_stack;
   call_stack.push(
-    frame_t{.return_address = return_address_e::before, .number = number});
+    frame_t{ .number = number});
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       std::cout << std::format("{}\n", top.number);
       if (top.number == 0) {
         std::cout << std::format("reached base case\n");
@@ -33,7 +33,7 @@ void count_down_and_up_iterative_recursive(const int number) {
       top.return_address = return_address_e::recursive;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+          
           .number = top.number - 1});
     } else if (top.return_address == return_address_e::recursive) {
       std::cout << std::format("{} returning\n", top.number);

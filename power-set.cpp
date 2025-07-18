@@ -31,20 +31,18 @@ std::vector<std::string> get_power_set_recursive(
 
 std::vector<std::string> get_power_set_iterative_recursive(
   const std::string& characters) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::string characters;
     std::string head;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{
-      .return_address = return_address_e::before, .characters = characters});
+  call_stack.push(frame_t{.characters = characters});
   std::vector<std::string> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.characters.empty()) {
         return_value = std::vector<std::string>(1, "");
         call_stack.pop();
@@ -52,10 +50,7 @@ std::vector<std::string> get_power_set_iterative_recursive(
       }
       top.return_address = return_address_e::recursive;
       top.head = top.characters[0];
-      call_stack.push(
-        frame_t{
-          .characters = top.characters.substr(1),
-          .return_address = return_address_e::before});
+      call_stack.push(frame_t{.characters = top.characters.substr(1)});
     } else if (top.return_address == return_address_e::recursive) {
       const auto tail_power_set = return_value;
       std::vector<std::string> power_set;

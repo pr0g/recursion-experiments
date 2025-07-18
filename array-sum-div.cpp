@@ -17,21 +17,20 @@ int array_sum_div_recursive(std::span<const int> numbers) {
 }
 
 int array_sum_div_iterative_recursive(std::span<const int> numbers) {
-  enum class return_address_e { before, recursive_1, recursive_2 };
+  enum class return_address_e { recursive_1, recursive_2 };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::span<const int> numbers;
     int half;
     int lhs;
     int rhs;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{.return_address = return_address_e::before, .numbers = numbers});
+  call_stack.push(frame_t{.numbers = numbers});
   int return_value = 0;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.numbers.empty()) {
         return_value = 0;
         call_stack.pop();
@@ -46,14 +45,14 @@ int array_sum_div_iterative_recursive(std::span<const int> numbers) {
       top.half = top.numbers.size() / 2;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+
           .numbers = top.numbers.subspan(0, top.half)});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       top.lhs = return_value;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+
           .numbers = top.numbers.subspan(top.half)});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.rhs = return_value;

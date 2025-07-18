@@ -18,17 +18,17 @@ int sum_series_recursive(int n) {
 }
 
 int sum_series_iterative_recursive(int n) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int n;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(frame_t{.return_address = return_address_e::before, .n = n});
+  call_stack.push(frame_t{ .n = n});
   int return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.n == 1) {
         return_value = 1;
         call_stack.pop();
@@ -36,7 +36,7 @@ int sum_series_iterative_recursive(int n) {
       }
       top.return_address = return_address_e::recursive;
       call_stack.push(
-        frame_t{.return_address = return_address_e::before, .n = top.n - 1});
+        frame_t{ .n = top.n - 1});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = top.n + return_value;
       call_stack.pop();
@@ -63,17 +63,17 @@ int power_series_recursive(int n, int power = 2) {
 }
 
 int power_series_iterative_recursive(int n, int power = 2) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int n;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(frame_t{.return_address = return_address_e::before, .n = n});
+  call_stack.push(frame_t{ .n = n});
   int return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.n == 1) {
         return_value = 2;
         call_stack.pop();
@@ -81,7 +81,7 @@ int power_series_iterative_recursive(int n, int power = 2) {
       }
       top.return_address = return_address_e::recursive;
       call_stack.push(
-        frame_t{.return_address = return_address_e::before, .n = top.n - 1});
+        frame_t{ .n = top.n - 1});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = power + return_value * 2;
       call_stack.pop();

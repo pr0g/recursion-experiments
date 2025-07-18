@@ -35,18 +35,18 @@ int exponents_iterative_recursive(const int number, const int power) {
   if (power == 0) {
     return 1;
   }
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int power;
   };
   std::stack<frame_t> call_stack;
   call_stack.push(
-    frame_t{.return_address = return_address_e::before, .power = power});
+    frame_t{ .power = power});
   int return_value = 1;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.power == 1) {
         return_value = number;
         call_stack.pop();
@@ -55,7 +55,7 @@ int exponents_iterative_recursive(const int number, const int power) {
       top.return_address = return_address_e::recursive;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before, .power = top.power / 2});
+           .power = top.power / 2});
     } else if (top.return_address == return_address_e::recursive) {
       if (top.power % 2 == 0) {
         return_value = return_value * return_value;

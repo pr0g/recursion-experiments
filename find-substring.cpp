@@ -25,17 +25,17 @@ int find_substring_recursive(
 
 int find_substring_iterative_recursive(
   std::string_view needle, std::string_view haystack, int offset = 0) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int offset;
   };
   std::stack<frame_t> call_stack;
   call_stack.push(
-    frame_t{.return_address = return_address_e::before, .offset = offset});
+    frame_t{ .offset = offset});
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.offset >= haystack.length()) {
         // return immediately (tail call)
         return -1;
@@ -47,7 +47,7 @@ int find_substring_iterative_recursive(
       } else {
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
+            
             .offset = top.offset + 1});
       }
     } else if (top.return_address == return_address_e::recursive) {

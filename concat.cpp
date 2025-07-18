@@ -18,9 +18,9 @@ std::string concat_iterative(const std::span<std::string> words) {
 }
 
 std::string concat_iterative_recursive(const std::span<std::string> words) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::span<std::string> words;
   };
   std::stack<frame_t> call_stack;
@@ -29,7 +29,7 @@ std::string concat_iterative_recursive(const std::span<std::string> words) {
   std::string return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.words.size() == 1) {
         return_value = top.words[0];
         call_stack.pop();
@@ -37,9 +37,7 @@ std::string concat_iterative_recursive(const std::span<std::string> words) {
       }
       top.return_address = return_address_e::recursive;
       call_stack.push(
-        frame_t{
-          .words = top.words.subspan(1, top.words.size() - 1),
-          .return_address = return_address_e::before});
+        frame_t{.words = top.words.subspan(1, top.words.size() - 1)});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = top.words[0] + return_value;
       call_stack.pop();
@@ -64,7 +62,7 @@ int main(int argc, char** argv) {
   }
   std::cout << '\n';
   {
-    std::cout << std::format("iterative_recursive: \n");
+    std::cout << std::format("iterative recursive: \n");
     std::vector<std::string> words = {"hello", "lovely", "world"};
     const auto concatenated_words = concat_iterative_recursive(words);
     std::cout << std::format("{}\n", concatenated_words);

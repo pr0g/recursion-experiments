@@ -103,7 +103,7 @@ bool solve_iterative_recursive(
     recursive_4
   };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     coord_t coord;
     bool solved = false;
   };
@@ -111,8 +111,7 @@ bool solve_iterative_recursive(
   const int width = maze[0].size();
   const int height = maze.size();
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{.return_address = return_address_e::before, .coord = coord});
+  call_stack.push(frame_t{.coord = coord});
 
   auto check = [width, height, &maze, &visited](coord_t coord, coord_t delta) {
     const auto next =
@@ -129,7 +128,7 @@ bool solve_iterative_recursive(
   bool return_value = false;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (maze[top.coord.row][top.coord.col] == 'E') {
         return_value = true;
         call_stack.pop();
@@ -142,33 +141,25 @@ bool solve_iterative_recursive(
       if (check(top.coord, coord_t{-1, 0})) {
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row - 1, .col = top.coord.col},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row - 1, .col = top.coord.col}});
         continue;
       }
       if (check(top.coord, coord_t{1, 0})) {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row + 1, .col = top.coord.col},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row + 1, .col = top.coord.col}});
         continue;
       }
       if (check(top.coord, coord_t{0, -1})) {
         top.return_address = return_address_e::recursive_3;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row, .col = top.coord.col - 1},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row, .col = top.coord.col - 1}});
         continue;
       }
       if (check(top.coord, coord_t{0, 1})) {
         top.return_address = return_address_e::recursive_4;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row, .col = top.coord.col + 1},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row, .col = top.coord.col + 1}});
         continue;
       }
       if (!return_value) {
@@ -180,25 +171,19 @@ bool solve_iterative_recursive(
       if (check(top.coord, coord_t{1, 0})) {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row + 1, .col = top.coord.col},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row + 1, .col = top.coord.col}});
         continue;
       }
       if (check(top.coord, coord_t{0, -1})) {
         top.return_address = return_address_e::recursive_3;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row, .col = top.coord.col - 1},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row, .col = top.coord.col - 1}});
         continue;
       }
       if (check(top.coord, coord_t{0, 1})) {
         top.return_address = return_address_e::recursive_4;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row, .col = top.coord.col + 1},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row, .col = top.coord.col + 1}});
         continue;
       }
       if (!return_value) {
@@ -210,17 +195,13 @@ bool solve_iterative_recursive(
       if (check(top.coord, coord_t{0, -1})) {
         top.return_address = return_address_e::recursive_3;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row, .col = top.coord.col - 1},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row, .col = top.coord.col - 1}});
         continue;
       }
       if (check(top.coord, coord_t{0, 1})) {
         top.return_address = return_address_e::recursive_4;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row, .col = top.coord.col + 1},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row, .col = top.coord.col + 1}});
         continue;
       }
       if (!return_value) {
@@ -232,9 +213,7 @@ bool solve_iterative_recursive(
         return_value = return_value || top.solved;
         top.return_address = return_address_e::recursive_4;
         call_stack.push(
-          frame_t{
-            .coord = {.row = top.coord.row, .col = top.coord.col + 1},
-            .return_address = return_address_e::before});
+          frame_t{.coord = {.row = top.coord.row, .col = top.coord.col + 1}});
         continue;
       }
       if (!return_value) {

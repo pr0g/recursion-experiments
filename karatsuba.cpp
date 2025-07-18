@@ -86,9 +86,9 @@ int64_t karabutsa_recursive(const int64_t x, const int64_t y) {
 }
 
 int karabutsa_iterative_recursive(const int x, const int y) {
-  enum class return_address_e { before, recursive_1, recursive_2, recursive_3 };
+  enum class return_address_e { recursive_1, recursive_2, recursive_3 };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int x;
     int y;
     std::string x_str;
@@ -104,12 +104,12 @@ int karabutsa_iterative_recursive(const int x, const int y) {
   };
   std::stack<frame_t> call_stack;
   call_stack.push(
-    frame_t{.return_address = return_address_e::before, .x = x, .y = y});
+    frame_t{ .x = x, .y = y});
 
   int return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       top.x_str = std::to_string(top.x);
       top.y_str = std::to_string(top.y);
       if (top.x_str.size() == 1 && top.y_str.size() == 1) {
@@ -137,19 +137,19 @@ int karabutsa_iterative_recursive(const int x, const int y) {
       top.d = std::stoi(top.y_str.substr(top.half_digits));
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before, .x = top.a, .y = top.c});
+           .x = top.a, .y = top.c});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
       top.step1 = return_value;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before, .x = top.b, .y = top.d});
+           .x = top.b, .y = top.d});
     } else if (top.return_address == return_address_e::recursive_2) {
       top.return_address = return_address_e::recursive_3;
       top.step2 = return_value;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+          
           .x = top.a + top.b,
           .y = top.c + top.d});
     } else if (top.return_address == return_address_e::recursive_3) {

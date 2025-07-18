@@ -36,9 +36,9 @@ std::vector<std::string> get_permutations_recursive(
 
 std::vector<std::string> get_permutations_iterative_recursive(
   const std::string& characters, int indent_length = 0) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::string characters;
     int indent_length;
     char head;
@@ -47,13 +47,13 @@ std::vector<std::string> get_permutations_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      .return_address = return_address_e::before,
+      
       .characters = characters,
       .indent_length = indent_length});
   std::vector<std::string> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       const auto indent = std::string(top.indent_length, '.');
       std::cout << std::format(
         "{}Start of get_permutations_recursive ({})\n", indent, top.characters);
@@ -71,7 +71,7 @@ std::vector<std::string> get_permutations_iterative_recursive(
       top.tail = top.characters.substr(1);
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+          
           .characters = top.tail,
           .tail = top.tail,
           .indent_length = top.indent_length + 1});
@@ -129,9 +129,9 @@ std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
   const std::string& characters,
   std::optional<int> permutation_length = std::nullopt,
   const std::string& prefix = "") {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::string characters;
     std::optional<int> permutation_length = std::nullopt;
     std::string prefix = "";
@@ -142,14 +142,14 @@ std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      .return_address = return_address_e::before,
+      
       .characters = characters,
       .permutation_length = permutation_length,
       .prefix = prefix});
   std::vector<std::string> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.permutation_length == std::nullopt) {
         top.permutation_length = top.characters.length();
       }
@@ -172,7 +172,7 @@ std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
         std::string new_prefix = top.prefix + character;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
+            
             .characters = top.characters,
             .permutation_length = *top.permutation_length - 1,
             .prefix = new_prefix});
@@ -190,7 +190,7 @@ std::vector<std::string> get_permutations_with_repetitions_iterative_recursive(
         std::string new_prefix = top.prefix + character;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
+            
             .characters = top.characters,
             .permutation_length = *top.permutation_length - 1,
             .prefix = new_prefix});

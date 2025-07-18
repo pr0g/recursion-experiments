@@ -64,9 +64,9 @@ std::optional<int> binary_search_iterative_recursive(
   int needle, std::span<const int> haystack,
   std::optional<int> left = std::nullopt,
   std::optional<int> right = std::nullopt) {
-  enum class return_address_e { before, recursive_1, recursive_2 };
+  enum class return_address_e { recursive_1, recursive_2 };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::optional<int> left;
     std::optional<int> right;
   };
@@ -79,13 +79,13 @@ std::optional<int> binary_search_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      .return_address = return_address_e::before,
+      
       .left = left,
       .right = right});
   std::optional<int> return_value;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (*top.left > *top.right) {
         return_value = std::nullopt;
         call_stack.pop();
@@ -104,14 +104,14 @@ std::optional<int> binary_search_iterative_recursive(
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
+            
             .left = top.left,
             .right = mid - 1});
       } else {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
+            
             .left = mid + 1,
             .right = top.right});
       }

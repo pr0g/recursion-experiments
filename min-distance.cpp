@@ -49,7 +49,7 @@ int min_distance_iterative_recursive(
     recursive_4
   };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::string_view lhs;
     std::string_view rhs;
     int a;
@@ -59,12 +59,12 @@ int min_distance_iterative_recursive(
   std::stack<frame_t> call_stack;
   call_stack.push(
     frame_t{
-      .return_address = return_address_e::before, .lhs = lhs, .rhs = rhs});
+       .lhs = lhs, .rhs = rhs});
 
   int return_value = 0;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       // std::cout << "lhs: " << top.lhs << " " << "rhs: " << top.rhs << '\n';
       if (top.lhs.empty() || top.rhs.empty()) {
         return_value = top.lhs.size() + top.rhs.size();
@@ -75,14 +75,14 @@ int min_distance_iterative_recursive(
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
+            
             .lhs = top.lhs.substr(0, top.lhs.size() - 1),
             .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
       } else {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
+            
             .lhs = top.lhs.substr(0, top.lhs.size() - 1),
             .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
       }
@@ -93,7 +93,7 @@ int min_distance_iterative_recursive(
       top.return_address = return_address_e::recursive_3;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+          
           .lhs = top.lhs,
           .rhs = top.rhs.substr(0, top.rhs.size() - 1)});
     } else if (top.return_address == return_address_e::recursive_3) {
@@ -101,7 +101,7 @@ int min_distance_iterative_recursive(
       top.return_address = return_address_e::recursive_4;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+          
           .lhs = top.lhs.substr(0, top.lhs.size() - 1),
           .rhs = top.rhs});
     } else if (top.return_address == return_address_e::recursive_4) {

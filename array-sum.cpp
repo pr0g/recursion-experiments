@@ -27,19 +27,19 @@ int sum_array_recursive_2(const std::vector<int>& tail) {
 
 // iterative recursive version
 int sum_array_iterative_recursive(const std::vector<int>& tail) {
-  enum class return_address_e { before, recursive };
+  enum class return_address_e { recursive };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     std::vector<int> tail;
   };
   std::stack<frame_t> call_stack;
   call_stack.push(
-    frame_t{.return_address = return_address_e::before, .tail = tail});
+    frame_t{ .tail = tail});
 
   int return_value = 0;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       if (top.tail.empty()) {
         return_value = 0;
         call_stack.pop();
@@ -48,7 +48,7 @@ int sum_array_iterative_recursive(const std::vector<int>& tail) {
       top.return_address = return_address_e::recursive;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+          
           .tail = std::vector(top.tail.begin() + 1, top.tail.end())});
     } else if (top.return_address == return_address_e::recursive) {
       return_value = top.tail[0] + return_value;

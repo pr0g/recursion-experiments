@@ -17,24 +17,19 @@ int ackermann_recursive(int m, int n, int indentation = 0) {
 }
 
 int ackermann_iterative_recursive(int m, int n, int indentation = 0) {
-  enum class return_address_e { before, recursive_1, recursive_2, recursive_3 };
+  enum class return_address_e { recursive_1, recursive_2, recursive_3 };
   struct frame_t {
-    return_address_e return_address;
+    std::optional<return_address_e> return_address;
     int m;
     int n;
     int indentation;
   };
   std::stack<frame_t> call_stack;
-  call_stack.push(
-    frame_t{
-      .return_address = return_address_e::before,
-      .m = m,
-      .n = n,
-      .indentation = indentation});
+  call_stack.push(frame_t{.m = m, .n = n, .indentation = indentation});
   int return_value = 0;
   while (!call_stack.empty()) {
     auto& top = call_stack.top();
-    if (top.return_address == return_address_e::before) {
+    if (!top.return_address.has_value()) {
       std::string indent;
       std::generate_n(
         std::back_inserter(indent), top.indentation, [] { return ' '; });
@@ -46,18 +41,14 @@ int ackermann_iterative_recursive(int m, int n, int indentation = 0) {
         top.return_address = return_address_e::recursive_1;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
-            .m = top.m - 1,
-            .n = 1,
-            .indentation = top.indentation + 1});
+
+            .m = top.m - 1, .n = 1, .indentation = top.indentation + 1});
       } else if (top.m > 0 && top.n > 0) {
         top.return_address = return_address_e::recursive_2;
         call_stack.push(
           frame_t{
-            .return_address = return_address_e::before,
-            .m = top.m,
-            .n = top.n - 1,
-            .indentation = top.indentation + 1});
+
+            .m = top.m, .n = top.n - 1, .indentation = top.indentation + 1});
       }
     } else if (top.return_address == return_address_e::recursive_1) {
       call_stack.pop();
@@ -65,7 +56,7 @@ int ackermann_iterative_recursive(int m, int n, int indentation = 0) {
       top.return_address = return_address_e::recursive_3;
       call_stack.push(
         frame_t{
-          .return_address = return_address_e::before,
+
           .m = top.m - 1,
           .n = return_value,
           .indentation = top.indentation + 1});
@@ -78,6 +69,8 @@ int ackermann_iterative_recursive(int m, int n, int indentation = 0) {
 
 int main(int argc, char** argv) {
   {
+    std::cout << "recursive:\n";
+
     const int result1 = ackermann_recursive(1, 1);
     std::cout << std::format("\nAckermann (1, 1) - {}\n", result1);
 
@@ -95,6 +88,8 @@ int main(int argc, char** argv) {
   std::cout << '\n';
 
   {
+    std::cout << "iterative recursive:\n";
+
     const int result1 = ackermann_iterative_recursive(1, 1);
     std::cout << std::format("\nAckermann (1, 1) - {}\n", result1);
 

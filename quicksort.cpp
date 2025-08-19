@@ -38,7 +38,7 @@ void quicksort_recursive_1(
 
   const auto midpoint_index = std::distance(items.begin(), midpoint);
   quicksort_recursive_1(items.subspan(0, midpoint_index));
-  quicksort_recursive_1(items.subspan(midpoint_index));
+  quicksort_recursive_1(items.subspan(midpoint_index + 1));
 }
 
 void quicksort_recursive_2(
@@ -56,7 +56,7 @@ void quicksort_recursive_2(
   std::swap(items[midpoint], items[items.size() - 1]);
 
   quicksort_recursive_2(items.subspan(0, midpoint));
-  quicksort_recursive_2(items.subspan(midpoint));
+  quicksort_recursive_2(items.subspan(midpoint + 1));
 }
 
 void quicksort_iterative_recursive_2(std::span<int> items) {
@@ -81,7 +81,7 @@ void quicksort_iterative_recursive_2(std::span<int> items) {
       call_stack.push(frame_t{.items = top.items.subspan(0, top.midpoint)});
     } else if (top.return_address == return_address_e::recursive_1) {
       top.return_address = return_address_e::recursive_2;
-      call_stack.push(frame_t{.items = top.items.subspan(top.midpoint)});
+      call_stack.push(frame_t{.items = top.items.subspan(top.midpoint + 1)});
     } else if (top.return_address == return_address_e::recursive_2) {
       call_stack.pop();
     }
@@ -89,7 +89,7 @@ void quicksort_iterative_recursive_2(std::span<int> items) {
 }
 
 int main(int argc, char** argv) {
-  std::vector<int> items = {2, 6, 1, 5, 10, 15, 11, 3, 9, 20, 8};
+  std::vector<int> items = {5, 2, 11, 1, 6, 100, 4, -3, 7, 2};
 
   {
     auto items_recursive = items;
